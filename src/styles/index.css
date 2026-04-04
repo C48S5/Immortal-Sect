@@ -1,0 +1,299 @@
+@import "tailwindcss";
+
+/* ═══ XIANXIA CUSTOM PROPERTIES ═══ */
+@theme {
+  --color-jade: #2d5a3d;
+  --color-jade-light: #3d7a52;
+  --color-jade-dark: #1d3a28;
+  --color-gold: #c9a84c;
+  --color-gold-muted: #a89660;
+  --color-gold-light: #e0c76e;
+  --color-purple-deep: #3d1f6d;
+  --color-celestial: #1a4a7a;
+  --color-ink-dark: #0d1b2a;
+  --color-ink-purple: #1a0a2e;
+  --color-warm-white: #e8dcc8;
+  --color-crimson: #8b2500;
+  --color-spirit-teal: #1a7a6d;
+  --color-panel: rgba(13, 27, 42, 0.85);
+  --color-panel-border: rgba(45, 90, 61, 0.3);
+  --color-rarity-common: #808080;
+  --color-rarity-uncommon: #4caf50;
+  --color-rarity-rare: #2196f3;
+  --color-rarity-epic: #9c27b0;
+  --color-rarity-legendary: #ffc107;
+}
+
+/* ═══ BASE STYLES ═══ */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0d1b2a 0%, #1a0a2e 100%);
+  color: #e8dcc8;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(13, 27, 42, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(45, 90, 61, 0.5);
+  border-radius: 3px;
+}
+
+/* ═══ KEYFRAME ANIMATIONS ═══ */
+
+/* Floating treasure movement */
+@keyframes treasureFloat {
+  0% {
+    transform: translateX(100vw) translateY(0px);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100px) translateY(0px);
+    opacity: 0;
+  }
+}
+
+/* Vertical wave for treasure */
+@keyframes treasureWave {
+  0%, 100% { transform: translateY(0px); }
+  25% { transform: translateY(-15px); }
+  75% { transform: translateY(15px); }
+}
+
+/* Treasure sparkle on collection */
+@keyframes sparkle {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Jade pulse glow */
+@keyframes pulseJade {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(45, 90, 61, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(45, 90, 61, 0.6), 0 0 40px rgba(45, 90, 61, 0.2);
+  }
+}
+
+/* Gold pulse glow */
+@keyframes pulseGold {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(201, 168, 76, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.6), 0 0 40px rgba(201, 168, 76, 0.2);
+  }
+}
+
+/* Cyan pulse for new tab */
+@keyframes pulseCyan {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(26, 122, 109, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(26, 122, 109, 0.7), 0 0 30px rgba(26, 122, 109, 0.3);
+  }
+}
+
+/* Red pulse for active challenge */
+@keyframes pulseRed {
+  0%, 100% {
+    border-color: rgba(139, 37, 0, 0.5);
+  }
+  50% {
+    border-color: rgba(139, 37, 0, 1);
+    box-shadow: 0 0 15px rgba(139, 37, 0, 0.4);
+  }
+}
+
+/* Legendary golden pulse */
+@keyframes pulseLegendary {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 193, 7, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.7), 0 0 40px rgba(255, 193, 7, 0.3);
+  }
+}
+
+/* Milestone golden burst */
+@keyframes milestoneBurst {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 10px rgba(201, 168, 76, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(201, 168, 76, 0);
+  }
+}
+
+/* Cycle progress bar fill */
+@keyframes cycleShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Bounce for meditate button */
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.92); }
+}
+
+/* Counter animate up */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Qi particle float */
+@keyframes qiParticle {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% {
+    transform: translateY(-20px) translateX(30px);
+    opacity: 0;
+  }
+}
+
+/* Starfield twinkle */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+/* Ascension cinematic */
+@keyframes ascensionGlow {
+  0% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0.8; transform: scale(1); }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ═══ UTILITY CLASSES ═══ */
+.animate-treasure-float {
+  animation: treasureFloat 8s linear forwards;
+}
+
+.animate-treasure-wave {
+  animation: treasureWave 2s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 0.4s ease-out forwards;
+}
+
+.animate-pulse-jade {
+  animation: pulseJade 2s ease-in-out infinite;
+}
+
+.animate-pulse-gold {
+  animation: pulseGold 2s ease-in-out infinite;
+}
+
+.animate-pulse-cyan {
+  animation: pulseCyan 1.5s ease-in-out infinite;
+}
+
+.animate-pulse-red {
+  animation: pulseRed 1s ease-in-out infinite;
+}
+
+.animate-pulse-legendary {
+  animation: pulseLegendary 2s ease-in-out infinite;
+}
+
+.animate-milestone-burst {
+  animation: milestoneBurst 0.6s ease-out;
+}
+
+.animate-bounce-click {
+  animation: bounce 0.15s ease-out;
+}
+
+.animate-count-up {
+  animation: countUp 0.3s ease-out;
+}
+
+.animate-qi-particle {
+  animation: qiParticle 6s linear infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+.animate-ascension-glow {
+  animation: ascensionGlow 2s ease-in-out;
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Cycle progress bar with shimmer */
+.cycle-bar-fill {
+  background: linear-gradient(90deg, #2d5a3d, #3d7a52, #2d5a3d);
+  background-size: 200% 100%;
+  animation: cycleShimmer 2s linear infinite;
+}
+
+/* Rarity border utilities */
+.border-rarity-common { border-color: #808080; }
+.border-rarity-uncommon { border-color: #4caf50; }
+.border-rarity-rare { border-color: #2196f3; }
+.border-rarity-epic { border-color: #9c27b0; }
+.border-rarity-legendary { border-color: #ffc107; }
+
+.text-rarity-common { color: #808080; }
+.text-rarity-uncommon { color: #4caf50; }
+.text-rarity-rare { color: #2196f3; }
+.text-rarity-epic { color: #9c27b0; }
+.text-rarity-legendary { color: #ffc107; }

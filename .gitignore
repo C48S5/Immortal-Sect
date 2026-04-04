@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.vite/
+*.log
+.env
+.env.*
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+.claude-flow/
+.swarm/
+.mcp.json
+.claude/
