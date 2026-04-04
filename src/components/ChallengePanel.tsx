@@ -30,11 +30,11 @@ export function ChallengePanel() {
     : null;
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold text-[#c9a84c] mb-2">Tribulation Challenges</h2>
-      <p className="text-sm text-[#a89660] mb-4">
-        Complete challenges under restrictions to earn permanent bonuses.
-        Only one challenge can be active at a time.
+    <div className="p-5">
+      <h2 className="section-header mb-2">Heavenly Tribulations</h2>
+      <p className="text-sm text-gold-muted mb-4">
+        Endure tribulations under harsh restrictions. Survive to claim permanent blessings.
+        Only one tribulation may be faced at a time.
       </p>
 
       {activeChallenge && (() => {
@@ -42,24 +42,24 @@ export function ChallengePanel() {
         if (!config) return null;
         const earnings = D(activeChallenge.currentEarnings);
         return (
-          <div className="mb-4 p-3 rounded-lg bg-[rgba(139,37,0,0.1)] border border-[#8b2500] animate-pulse-red">
+          <div className="mb-4 p-3 rounded-lg bg-[rgba(139,37,0,0.1)] border border-crimson animate-pulse-red">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs text-[#8b2500] font-bold uppercase">Active Challenge</span>
-                <h3 className="text-sm font-bold text-[#e8dcc8]">
+                <span className="text-xs text-crimson font-bold uppercase">Active Tribulation</span>
+                <h3 className="text-sm font-bold text-warm-white">
                   {config.name}
                 </h3>
               </div>
               <button
                 onClick={handleExit}
-                className="px-3 py-1 rounded text-xs font-bold bg-[rgba(139,37,0,0.2)] border border-[#8b2500] text-[#8b2500] hover:bg-[rgba(139,37,0,0.4)] transition-all"
+                className="px-3 py-1 rounded text-xs font-bold bg-[rgba(139,37,0,0.2)] border border-crimson text-crimson hover:bg-[rgba(139,37,0,0.4)] transition-all"
               >
-                Exit Challenge
+                Abandon Tribulation
               </button>
             </div>
             <div className="mt-2 w-full h-2 rounded-full bg-[rgba(13,27,42,0.6)] overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#8b2500] transition-all duration-300"
+                className="h-full rounded-full bg-[#d94a2b] transition-all duration-300"
                 style={{
                   width: `${Math.min(
                     earnings.div(config.targetEarnings).toNumber() * 100,
@@ -68,8 +68,8 @@ export function ChallengePanel() {
                 }}
               />
             </div>
-            <div className="text-xs text-[#a89660] mt-1">
-              {formatNumber(earnings)} / {formatNumber(config.targetEarnings)} SS
+            <div className="text-xs text-gold-muted mt-1">
+              {formatNumber(earnings)} / {formatNumber(config.targetEarnings)} Spirit Stones earned
             </div>
           </div>
         );
@@ -87,28 +87,28 @@ export function ChallengePanel() {
               className={`
                 p-3 rounded-lg border transition-all duration-200
                 bg-[rgba(13,27,42,0.85)]
-                ${state.completed ? 'border-[#c9a84c]' : isActive ? 'border-[#8b2500] animate-pulse-red' : 'border-[rgba(45,90,61,0.3)]'}
+                ${state.completed ? 'border-gold' : isActive ? 'border-crimson animate-pulse-red' : 'border-[rgba(45,90,61,0.3)]'}
               `}
             >
               <div className="flex items-center justify-between mb-1">
-                <h3 className="text-sm font-bold text-[#e8dcc8]">{config.name}</h3>
+                <h3 className="text-sm font-bold text-warm-white">{config.name}</h3>
                 {state.completed && <span className="text-lg">&#127942;</span>}
               </div>
-              <p className="text-xs text-[#8b2500] mb-1">{config.restriction}</p>
-              <p className="text-xs text-[#a89660] mb-1">Target: {formatNumber(config.targetEarnings)} SS</p>
-              <p className="text-xs text-[#4caf50] mb-2">Reward: {config.rewardDescription}</p>
+              <p className="text-xs text-crimson mb-1">{config.restriction}</p>
+              <p className="text-xs text-gold-muted mb-1">Target: {formatNumber(config.targetEarnings)} SS</p>
+              <p className="text-xs text-success mb-2">Reward: {config.rewardDescription}</p>
 
               {!state.completed && !isActive && !activeChallenge && (
                 <button
                   onClick={() => handleEnter(config.id)}
-                  className="w-full py-1.5 rounded text-xs font-bold bg-[rgba(139,37,0,0.15)] border border-[#8b2500] text-[#8b2500] hover:bg-[rgba(139,37,0,0.3)] transition-all"
+                  className="w-full py-1.5 rounded text-xs font-bold bg-[rgba(139,37,0,0.15)] border border-crimson text-crimson hover:bg-[rgba(139,37,0,0.3)] transition-all"
                 >
-                  Enter Challenge
+                  Begin Tribulation
                 </button>
               )}
               {state.completed && (
-                <div className="text-xs text-[#c9a84c] font-bold text-center py-1.5">
-                  Completed
+                <div className="text-xs text-gold font-bold text-center py-1.5">
+                  Tribulation Overcome
                 </div>
               )}
             </div>

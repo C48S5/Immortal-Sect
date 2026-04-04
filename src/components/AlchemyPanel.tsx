@@ -1,6 +1,7 @@
 import { useGameStore } from '@state/gameStore';
 import { useHallStore } from '@state/hallStore';
 import { useAlchemyStore } from '@state/alchemyStore';
+import { useMissionStore } from '@state/missionStore';
 import { formatNumber, D } from '@core/BigNumber';
 import type { AlchemyItemConfig } from '@models/alchemy';
 import { ALCHEMY_ITEM_CONFIGS } from '@data/alchemyConfigs';
@@ -29,15 +30,17 @@ export function AlchemyPanel() {
       multiplier: item.multiplier,
       affectedHallIds: item.affectedHallIds,
     });
+    useMissionStore.getState().addProgress('craftPills', 1);
   };
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-[#c9a84c]">Alchemy Pavilion</h2>
-        <div className="flex items-center gap-2 px-3 py-1 rounded bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.3)]">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#c9a84c]" />
-          <span className="text-sm font-mono text-[#c9a84c]">{formatNumber(alchemyEssence)} AE</span>
+    <div className="p-5">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="section-header">Alchemy Pavilion</h2>
+        <div className="currency-pill">
+          <span className="currency-dot" style={{ color: '#c9a84c', backgroundColor: '#c9a84c' }} />
+          <span className="currency-label">AE</span>
+          <span className="currency-value">{formatNumber(alchemyEssence)}</span>
         </div>
       </div>
 
@@ -57,23 +60,23 @@ export function AlchemyPanel() {
                   p-3 rounded-lg border transition-all duration-200
                   bg-[rgba(13,27,42,0.85)] border-[rgba(45,90,61,0.3)]
                   ${!isUnlocked ? 'opacity-40' : ''}
-                  ${isActive ? 'border-[#4caf50]' : ''}
+                  ${isActive ? 'border-success' : ''}
                 `}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-[#e8dcc8]">{item.name}</h3>
+                      <h3 className="text-sm font-bold text-warm-white">{item.name}</h3>
                       {isActive && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-[rgba(76,175,80,0.2)] text-[#4caf50]">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-[rgba(76,175,80,0.2)] text-success">
                           Active
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#a89660]">{item.effectDescription}</p>
+                    <p className="text-xs text-gold-muted">{item.effectDescription}</p>
                     {!isUnlocked && (
-                      <p className="text-xs text-[#8b2500] mt-1">
-                        Requires Alchemy Furnace Lv {item.unlockLevel}
+                      <p className="text-xs text-crimson mt-1">
+                        Requires Alchemy Furnace Level {item.unlockLevel}
                       </p>
                     )}
                   </div>
@@ -83,8 +86,8 @@ export function AlchemyPanel() {
                     className={`
                       ml-3 px-4 py-2 rounded text-xs font-bold transition-all duration-150
                       ${canAfford && isUnlocked && !isActive
-                        ? 'bg-[rgba(201,168,76,0.15)] border border-[#c9a84c] text-[#c9a84c] hover:bg-[rgba(201,168,76,0.3)] animate-pulse-gold'
-                        : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-[#a89660]/40 cursor-not-allowed'
+                        ? 'bg-[rgba(201,168,76,0.15)] border border-gold text-gold hover:bg-[rgba(201,168,76,0.3)] animate-pulse-gold'
+                        : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-gold-muted/40 cursor-not-allowed'
                       }
                     `}
                   >
@@ -92,8 +95,8 @@ export function AlchemyPanel() {
                     <div className="font-mono">
                       {alchemyCostReduction > 0 ? (
                         <>
-                          <span className="line-through text-[#a89660]/40 mr-1">{item.aeCost}</span>
-                          <span className="text-[#4caf50]">{Math.round(item.aeCost * (1 - alchemyCostReduction))}</span>
+                          <span className="line-through text-gold-muted/40 mr-1">{item.aeCost}</span>
+                          <span className="text-success">{Math.round(item.aeCost * (1 - alchemyCostReduction))}</span>
                         </>
                       ) : (
                         item.aeCost
@@ -108,9 +111,9 @@ export function AlchemyPanel() {
 
         {/* Active buffs sidebar */}
         <div className="w-48 shrink-0">
-          <h3 className="text-sm font-bold text-[#a89660] mb-2">Active Buffs</h3>
+          <h3 className="text-sm font-bold text-gold-muted mb-2">Active Elixirs</h3>
           {activeBuffs.length === 0 ? (
-            <p className="text-xs text-[#a89660]/50">No active buffs</p>
+            <p className="text-xs text-gold-muted/50">No elixirs brewing</p>
           ) : (
             <div className="space-y-2">
               {activeBuffs.map((buff) => {
@@ -120,9 +123,9 @@ export function AlchemyPanel() {
                     key={`${buff.itemId}-${buff.remainingSeconds}`}
                     className="p-2 rounded bg-[rgba(76,175,80,0.1)] border border-[rgba(76,175,80,0.3)]"
                   >
-                    <div className="text-xs font-bold text-[#4caf50]">{item?.name}</div>
-                    <div className="text-xs text-[#a89660]">x{buff.multiplier}</div>
-                    <div className="text-xs font-mono text-[#e8dcc8]">{buff.remainingSeconds}s</div>
+                    <div className="text-xs font-bold text-success">{item?.name}</div>
+                    <div className="text-xs text-gold-muted">x{buff.multiplier}</div>
+                    <div className="text-xs font-mono text-warm-white">{buff.remainingSeconds}s</div>
                     <div className="w-full h-1 rounded-full bg-[rgba(13,27,42,0.6)] mt-1 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-[#4caf50] transition-all duration-1000"

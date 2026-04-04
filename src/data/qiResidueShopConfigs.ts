@@ -92,5 +92,5 @@ export const QI_RESIDUE_SHOP_CONFIGS: readonly QiResidueBuffConfig[] = [
   },
 ];
 
-/** Total QR needed to max out all buffs in the shop */
-export const TOTAL_QR_TO_MAX_ALL = 148500;
+/** Total QR needed to max out all buffs in the shop (long-term aspiration goal) */
+export const TOTAL_QR_TO_MAX_ALL = 110500;

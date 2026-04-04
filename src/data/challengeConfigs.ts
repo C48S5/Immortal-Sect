@@ -11,6 +11,7 @@ export const CHALLENGE_CONFIGS: readonly ChallengeConfig[] = [
     rewardDescription: 'x2 Hall 1 income permanent',
     rewardType: 'hallProfitMult',
     rewardValue: 2,
+    targetHallId: 1,
   },
   {
     id: 2,
@@ -52,7 +53,7 @@ export const CHALLENGE_CONFIGS: readonly ChallengeConfig[] = [
     id: 6,
     name: 'Wild Beasts',
     restriction: 'Spirit Garden only',
-    targetEarnings: new Decimal(5e12),
+    targetEarnings: new Decimal(1e12),
     rewardDescription: 'x3 treasure value permanent',
     rewardType: 'treasureValueMult',
     rewardValue: 3,
@@ -65,6 +66,7 @@ export const CHALLENGE_CONFIGS: readonly ChallengeConfig[] = [
     rewardDescription: 'x2 Sword Peak income permanent',
     rewardType: 'hallProfitMult',
     rewardValue: 2,
+    targetHallId: 7,
   },
   {
     id: 8,

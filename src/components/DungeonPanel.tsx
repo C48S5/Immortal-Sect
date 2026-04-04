@@ -4,9 +4,9 @@ import { SECRET_REALM_CONFIGS, IDLE_FARMING_TIERS, REALM_KEY_CONFIG } from '@dat
 import { useDungeonStore } from '@state/dungeonStore';
 
 const ELEMENT_COLORS: Record<SpiritualRoot, string> = {
-  [SpiritualRoot.Fire]: '#8b2500',
-  [SpiritualRoot.Water]: '#1a4a7a',
-  [SpiritualRoot.Wood]: '#2d5a3d',
+  [SpiritualRoot.Fire]: '#d94a2b',
+  [SpiritualRoot.Water]: '#3d7ec4',
+  [SpiritualRoot.Wood]: '#4a9968',
   [SpiritualRoot.Metal]: '#808080',
   [SpiritualRoot.Earth]: '#a89660',
 };
@@ -48,10 +48,10 @@ export function DungeonPanel() {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold text-[#c9a84c] mb-2">Secret Realms</h2>
-      <p className="text-xs text-[#a89660] mb-4">
-        Keys: {REALM_KEY_CONFIG.maxDailyKeys}/day | Regen: 1 every {REALM_KEY_CONFIG.regenHours}h | Cap: {REALM_KEY_CONFIG.maxStoredKeys}
+    <div className="p-5">
+      <h2 className="section-header mb-1">Secret Realms</h2>
+      <p className="text-xs text-gold-muted mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        Keys: {REALM_KEY_CONFIG.maxDailyKeys}/day | Regen: 1/{REALM_KEY_CONFIG.regenHours}h | Cap: {REALM_KEY_CONFIG.maxStoredKeys}
       </p>
 
       {/* Sub-tabs */}
@@ -61,12 +61,13 @@ export function DungeonPanel() {
             key={t.key}
             onClick={() => setSubTab(t.key)}
             className={`
-              px-4 py-1.5 rounded-t text-sm font-bold transition-all duration-150
+              px-4 py-1.5 rounded-t text-[11px] font-semibold tracking-wider uppercase transition-all duration-150
               ${subTab === t.key
-                ? 'bg-[rgba(13,27,42,0.85)] border border-b-0 border-[rgba(45,90,61,0.3)] text-[#c9a84c]'
-                : 'bg-transparent text-[#a89660] hover:text-[#e8dcc8]'
+                ? 'bg-[rgba(10,15,26,0.85)] border border-b-0 border-[rgba(45,90,61,0.2)] text-gold'
+                : 'bg-transparent text-gold-muted hover:text-warm-white'
               }
             `}
+            style={{ fontFamily: "'Cinzel', serif" }}
           >
             {t.label}
           </button>
@@ -95,12 +96,12 @@ export function DungeonPanel() {
                   <h3 className="text-sm font-bold" style={{ color: ELEMENT_COLORS[realm.element] }}>
                     {realm.name}
                   </h3>
-                  <p className="text-xs text-[#a89660] capitalize mb-1">{realm.element} Realm</p>
-                  <p className="text-[10px] text-[#a89660]">{realm.environmentalEffect}</p>
-                  <div className="mt-2 text-xs text-[#e8dcc8]">
+                  <p className="text-xs text-gold-muted capitalize mb-1">{realm.element} Realm</p>
+                  <p className="text-[10px] text-gold-muted">{realm.environmentalEffect}</p>
+                  <div className="mt-2 text-xs text-warm-white">
                     Highest Floor: {state?.highestFloorEver ?? 0} / {realm.totalFloors}
                   </div>
-                  <div className="text-xs text-[#a89660]">
+                  <div className="text-xs text-gold-muted">
                     Keys: {state?.realmKeys ?? 0}
                   </div>
                 </button>
@@ -113,12 +114,12 @@ export function DungeonPanel() {
         {subTab === 'idle' && (
           <div>
             {!selected ? (
-              <p className="text-sm text-[#a89660] text-center py-8">
-                Select a realm first from the Realm Select tab.
+              <p className="text-sm text-gold-muted text-center py-8">
+                Choose a realm from the Realm Select tab to begin.
               </p>
             ) : (
               <div>
-                <h3 className="text-sm font-bold text-[#e8dcc8] mb-3">
+                <h3 className="text-sm font-bold text-warm-white mb-3">
                   Idle Farming: {selected.name}
                 </h3>
                 <div className="space-y-3">
@@ -126,26 +127,26 @@ export function DungeonPanel() {
                     const tier = getIdleTier(selectedState?.highestFloorEver ?? 0);
                     return (
                       <div className="p-3 rounded bg-[rgba(13,27,42,0.6)] border border-[rgba(45,90,61,0.2)]">
-                        <div className="text-xs text-[#a89660] mb-1">
+                        <div className="text-xs text-gold-muted mb-1">
                           Rewards per hour (based on highest floor{tier ? `, tier: floor ${tier.minFloor}+` : ''})
                         </div>
                         {tier ? (
                           <div className="grid grid-cols-3 gap-2 text-xs text-center">
                             <div>
-                              <span className="text-[#2d5a3d]">SS</span>
-                              <span className="text-[#e8dcc8] ml-1">{tier.ssPerHour.toString()}/hr</span>
+                              <span className="text-jade">SS</span>
+                              <span className="text-warm-white ml-1">{tier.ssPerHour.toString()}/hr</span>
                             </div>
                             <div>
-                              <span className="text-[#1a7a6d]">RT</span>
-                              <span className="text-[#e8dcc8] ml-1">{tier.rtPerHour}/hr</span>
+                              <span className="text-[#2ba695]">RT</span>
+                              <span className="text-warm-white ml-1">{tier.rtPerHour}/hr</span>
                             </div>
                             <div>
-                              <span className="text-[#c9a84c]">AE</span>
-                              <span className="text-[#e8dcc8] ml-1">{tier.aePerHour}/hr</span>
+                              <span className="text-gold">AE</span>
+                              <span className="text-warm-white ml-1">{tier.aePerHour}/hr</span>
                             </div>
                           </div>
                         ) : (
-                          <p className="text-xs text-[#a89660]">Clear floor {IDLE_FARMING_TIERS[0]?.minFloor ?? 10}+ to unlock idle rewards.</p>
+                          <p className="text-xs text-gold-muted">Clear floor {IDLE_FARMING_TIERS[0]?.minFloor ?? 10}+ to unlock idle rewards.</p>
                         )}
                       </div>
                     );
@@ -153,12 +154,12 @@ export function DungeonPanel() {
 
                   {/* 12h reward cap bar */}
                   <div>
-                    <div className="text-xs text-[#a89660] mb-1">
+                    <div className="text-xs text-gold-muted mb-1">
                       Accumulated: {((selectedState?.uncollectedIdleHours ?? 0)).toFixed(1)}h / {REALM_KEY_CONFIG.maxIdleHours}h
                     </div>
                     <div className="w-full h-2 rounded-full bg-[rgba(13,27,42,0.6)] overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#1a7a6d] transition-all duration-300"
+                        className="h-full rounded-full bg-[#2ba695] transition-all duration-300"
                         style={{ width: `${Math.min(((selectedState?.uncollectedIdleHours ?? 0) / REALM_KEY_CONFIG.maxIdleHours) * 100, 100)}%` }}
                       />
                     </div>
@@ -170,12 +171,12 @@ export function DungeonPanel() {
                     className={`
                       w-full py-2 rounded-lg text-sm font-bold transition-all
                       ${selectedState && selectedState.uncollectedIdleHours > 0
-                        ? 'bg-[rgba(26,122,109,0.15)] border border-[#1a7a6d] text-[#1a7a6d] hover:bg-[rgba(26,122,109,0.3)]'
-                        : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-[#a89660]/40 cursor-not-allowed'
+                        ? 'bg-[rgba(26,122,109,0.15)] border border-[#2ba695] text-[#2ba695] hover:bg-[rgba(26,122,109,0.3)]'
+                        : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-gold-muted/40 cursor-not-allowed'
                       }
                     `}
                   >
-                    Collect Idle Rewards
+                    Gather Accumulated Spoils
                   </button>
                 </div>
               </div>
@@ -187,35 +188,35 @@ export function DungeonPanel() {
         {subTab === 'push' && (
           <div>
             {!selected ? (
-              <p className="text-sm text-[#a89660] text-center py-8">
-                Select a realm first from the Realm Select tab.
+              <p className="text-sm text-gold-muted text-center py-8">
+                Choose a realm from the Realm Select tab to begin.
               </p>
             ) : (
               <div>
-                <h3 className="text-sm font-bold text-[#e8dcc8] mb-3">
+                <h3 className="text-sm font-bold text-warm-white mb-3">
                   Push: {selected.name}
                 </h3>
 
                 <div className="p-3 rounded bg-[rgba(13,27,42,0.6)] border border-[rgba(45,90,61,0.2)] mb-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#a89660]">Current Floor</span>
-                    <span className="text-sm font-bold text-[#e8dcc8]">
+                    <span className="text-xs text-gold-muted">Current Floor</span>
+                    <span className="text-sm font-bold text-warm-white">
                       {(selectedState?.highestFloorThisRun ?? 0) + 1}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#a89660]">Highest Cleared</span>
-                    <span className="text-sm text-[#c9a84c]">{selectedState?.highestFloorEver ?? 0}</span>
+                    <span className="text-xs text-gold-muted">Highest Cleared</span>
+                    <span className="text-sm text-gold">{selectedState?.highestFloorEver ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#a89660]">Realm Keys</span>
-                    <span className="text-sm text-[#1a7a6d]">{selectedState?.realmKeys ?? 0}</span>
+                    <span className="text-xs text-gold-muted">Realm Keys</span>
+                    <span className="text-sm text-[#2ba695]">{selectedState?.realmKeys ?? 0}</span>
                   </div>
 
                   {/* Boss warning */}
                   {((selectedState?.highestFloorThisRun ?? 0) + 1) % 10 === 0 && (
                     <div className="mt-2 p-1.5 rounded bg-[rgba(139,37,0,0.15)] border border-[rgba(139,37,0,0.3)]">
-                      <span className="text-xs text-[#8b2500] font-bold">Boss Floor!</span>
+                      <span className="text-xs text-crimson font-bold">Guardian Floor!</span>
                     </div>
                   )}
                 </div>
@@ -227,16 +228,16 @@ export function DungeonPanel() {
                     className={`
                       flex-1 py-2 rounded-lg text-sm font-bold transition-all duration-200
                       ${(selectedState?.realmKeys ?? 0) > 0
-                        ? 'bg-[rgba(45,90,61,0.15)] border border-[#2d5a3d] text-[#2d5a3d] hover:bg-[rgba(45,90,61,0.3)]'
-                        : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-[#a89660]/40 cursor-not-allowed'
+                        ? 'bg-[rgba(45,90,61,0.15)] border border-[#4a9968] text-jade hover:bg-[rgba(45,90,61,0.3)]'
+                        : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-gold-muted/40 cursor-not-allowed'
                       }
                     `}
                   >
-                    Push Next Floor
+                    Advance
                   </button>
                   <button
                     onClick={() => selectedRealm && retreat(selectedRealm)}
-                    className="flex-1 py-2 rounded-lg text-sm font-bold bg-[rgba(139,37,0,0.15)] border border-[#8b2500] text-[#8b2500] hover:bg-[rgba(139,37,0,0.3)] transition-all"
+                    className="flex-1 py-2 rounded-lg text-sm font-bold bg-[rgba(139,37,0,0.15)] border border-crimson text-crimson hover:bg-[rgba(139,37,0,0.3)] transition-all"
                   >
                     Retreat
                   </button>

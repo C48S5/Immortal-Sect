@@ -23,6 +23,18 @@ export interface Milestone {
   specialEffect?: string;
   /** Optional AE per second bonus granted at this milestone */
   aeBonusPerSecond?: number;
+  /** Optional flat HDP bonus per ascension (Hall 8) */
+  hdpBonusFlat?: number;
+  /** Optional offline efficiency multiplier value (Hall 9, e.g. 1.5 = x1.5) */
+  offlineMultiplier?: number;
+  /** Optional Dao Path amplifier value (Hall 10, e.g. 1.2 = x1.2) */
+  daoPathAmplifier?: number;
+  /** Optional alchemy duration multiplier (Hall 6, e.g. 1.1 = x1.1) */
+  alchemyDurationMultiplier?: number;
+  /** Optional Heavenly Treasure frequency multiplier (Hall 5, e.g. 1.2 = x1.2) */
+  treasureFrequencyMultiplier?: number;
+  /** Optional Mandate effectiveness multiplier (Hall 12, e.g. 1.5 = x1.5) */
+  mandateMultiplier?: number;
 }
 
 /** Elemental affinity for a cultivation hall */

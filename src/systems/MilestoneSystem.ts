@@ -172,11 +172,9 @@ export function getBuffDurationExtension(talismanStudioLevel: number): number {
 
   for (const m of milestones) {
     if (m.level > talismanStudioLevel) continue;
-    if (m.specialEffect?.startsWith('extendBuffDuration:')) {
-      const seconds = parseInt(m.specialEffect.split(':')[1], 10);
-      if (!isNaN(seconds)) {
-        totalExtension += seconds;
-      }
+    if (m.specialEffect === 'alchemyDuration') {
+      // Each alchemy duration milestone adds 10 seconds to buff durations
+      totalExtension += 10;
     }
   }
 
@@ -192,11 +190,9 @@ export function getMandateEffectivenessBonus(daoThroneLevel: number): number {
 
   for (const m of milestones) {
     if (m.level > daoThroneLevel) continue;
-    if (m.specialEffect?.startsWith('mandateEffectiveness:')) {
-      const val = parseFloat(m.specialEffect.split(':')[1]);
-      if (!isNaN(val) && val > best) {
-        best = val;
-      }
+    if (m.specialEffect === 'mandateEffectiveness') {
+      // Each mandate effectiveness milestone adds +10% effectiveness
+      best += 0.10;
     }
   }
 

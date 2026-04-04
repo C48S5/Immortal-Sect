@@ -11,10 +11,10 @@ export const DAO_PATH_CONFIGS: readonly DaoPathConfig[] = [
     passiveValue: 0.10,
     spell: {
       name: 'Sword Storm',
-      activeDuration: 30,
-      cooldown: 300,
+      activeDuration: 45,
+      cooldown: 180,
       effectDescription:
-        'For 30s, every 3s a random hall receives x1-x10 income (avg x3.75). 300s cooldown.',
+        'For 45s, every 3s a random hall receives x3-x10 income (avg x5.5). 180s cooldown.',
     },
   },
   {
@@ -41,10 +41,10 @@ export const DAO_PATH_CONFIGS: readonly DaoPathConfig[] = [
     passiveValue: 0.05,
     spell: {
       name: 'Barrier Seal',
-      activeDuration: 120,
-      cooldown: 600,
+      activeDuration: 90,
+      cooldown: 300,
       effectDescription:
-        'Lock 1 hall for 120s. Income ramps x0.5 to x2 over duration (avg x1.22, x2 if held full). 600s cooldown.',
+        'Lock 1 hall for 90s. Income ramps x1 to x4 over duration (avg x2.5, x4 if held full). 300s cooldown.',
     },
   },
   {
@@ -57,9 +57,9 @@ export const DAO_PATH_CONFIGS: readonly DaoPathConfig[] = [
     spell: {
       name: 'Heavenly Tribulation',
       activeDuration: 10,
-      cooldown: 180,
+      cooldown: 300,
       effectDescription:
-        '50% chance: x10 all income for 10s. 50% chance: x0 for 5s then x5 for 5s. 180s cooldown.',
+        '50% chance: x10 all income for 10s. 50% chance: x0 for 5s then x5 for 5s. 300s cooldown.',
     },
   },
   {

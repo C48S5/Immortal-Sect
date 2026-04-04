@@ -149,91 +149,116 @@ export const HALL_4_MILESTONES: readonly Milestone[] = [
 ];
 
 /**
- * Hall 5: Spirit Beast Garden -- 22 milestones
- * SPECIAL: AE generation bonus (secondary to Hall 3)
+ * Hall 5: Spirit Beast Garden -- 21 milestones
+ * SPECIAL: Secondary AE production (40% of Hall 3 rate) + Heavenly Treasure frequency boost.
+ * AE Generation: Base rate = 0.004 x level per cycle (24s).
  */
 export const HALL_5_MILESTONES: readonly Milestone[] = [
-  { level: 25, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 50, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 100, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 150, effectType: 'profit', multiplier: 2, appliesToAll: false },
+  { level: 40, effectType: 'speed', multiplier: 2, appliesToAll: false },
+  { level: 80, effectType: 'speed', multiplier: 2, appliesToAll: false },
+  { level: 125, effectType: 'speed', multiplier: 2, appliesToAll: false },
   {
-    level: 200, effectType: 'speed', multiplier: 2, appliesToAll: false,
+    level: 200, effectType: 'profit', multiplier: 2, appliesToAll: false,
     specialEffect: 'aeGeneration', aeBonusPerSecond: 0.5,
   },
   { level: 300, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 400, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 500, effectType: 'profit', multiplier: 2, appliesToAll: false },
   {
-    level: 600, effectType: 'profit', multiplier: 3, appliesToAll: false,
-    specialEffect: 'aeGeneration', aeBonusPerSecond: 2,
+    level: 500, effectType: 'profit', multiplier: 3, appliesToAll: false,
+    specialEffect: 'treasureFrequency', treasureFrequencyMultiplier: 1.2,
   },
-  { level: 800, effectType: 'profit', multiplier: 4, appliesToAll: false },
+  { level: 700, effectType: 'profit', multiplier: 4, appliesToAll: false },
   {
     level: 1000, effectType: 'profit', multiplier: 5, appliesToAll: false,
+    specialEffect: 'aeGeneration', aeBonusPerSecond: 2,
+  },
+  {
+    level: 1500, effectType: 'profit', multiplier: 10, appliesToAll: false,
+    specialEffect: 'treasureFrequency', treasureFrequencyMultiplier: 1.5,
+  },
+  { level: 2000, effectType: 'profit', multiplier: 20, appliesToAll: false },
+  {
+    level: 2500, effectType: 'profit', multiplier: 50, appliesToAll: false,
     specialEffect: 'aeGeneration', aeBonusPerSecond: 10,
   },
-  { level: 1250, effectType: 'profit', multiplier: 10, appliesToAll: false },
-  { level: 1500, effectType: 'profit', multiplier: 10, appliesToAll: false },
-  {
-    level: 2000, effectType: 'profit', multiplier: 20, appliesToAll: false,
-    specialEffect: 'aeGeneration', aeBonusPerSecond: 40,
-  },
-  { level: 2500, effectType: 'profit', multiplier: 50, appliesToAll: false },
   { level: 3000, effectType: 'profit', multiplier: 100, appliesToAll: false },
   {
-    level: 4000, effectType: 'profit', multiplier: 200, appliesToAll: false,
-    specialEffect: 'aeGeneration', aeBonusPerSecond: 200,
+    level: 3500, effectType: 'profit', multiplier: 200, appliesToAll: false,
+    specialEffect: 'treasureFrequency', treasureFrequencyMultiplier: 1.8,
   },
-  { level: 5000, effectType: 'profit', multiplier: 500, appliesToAll: false },
-  { level: 6000, effectType: 'profit', multiplier: 1000, appliesToAll: false },
-  { level: 7000, effectType: 'profit', multiplier: 2000, appliesToAll: false },
-  { level: 8000, effectType: 'profit', multiplier: 5000, appliesToAll: false },
-  { level: 10000, effectType: 'profit', multiplier: 5000, appliesToAll: false },
+  {
+    level: 4000, effectType: 'profit', multiplier: 500, appliesToAll: false,
+    specialEffect: 'aeGeneration', aeBonusPerSecond: 50,
+  },
+  { level: 5000, effectType: 'profit', multiplier: 1000, appliesToAll: false },
+  {
+    level: 5500, effectType: 'profit', multiplier: 2000, appliesToAll: false,
+    specialEffect: 'treasureFrequency', treasureFrequencyMultiplier: 2.0,
+  },
+  { level: 6000, effectType: 'profit', multiplier: 5000, appliesToAll: false },
+  {
+    level: 7000, effectType: 'profit', multiplier: 10000, appliesToAll: false,
+    specialEffect: 'aeGeneration', aeBonusPerSecond: 250,
+  },
+  { level: 8000, effectType: 'profit', multiplier: 20000, appliesToAll: false },
+  {
+    level: 9000, effectType: 'profit', multiplier: 50000, appliesToAll: false,
+    specialEffect: 'treasureFrequency', treasureFrequencyMultiplier: 2.5,
+  },
+  { level: 10000, effectType: 'profit', multiplier: 100000, appliesToAll: false },
 ];
 
 /**
- * Hall 6: Talisman Inscription Studio -- 22 milestones
- * SPECIAL: +duration to alchemy buffs per SPECIAL milestone
+ * Hall 6: Talisman Inscription Studio -- 20 milestones
+ * SPECIAL: Extends ALL pill/talisman durations. Scales from x1.1 to x2.0.
  */
 export const HALL_6_MILESTONES: readonly Milestone[] = [
-  { level: 25, effectType: 'speed', multiplier: 2, appliesToAll: false },
   { level: 50, effectType: 'speed', multiplier: 2, appliesToAll: false },
   { level: 100, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 150, effectType: 'profit', multiplier: 2, appliesToAll: false },
+  { level: 200, effectType: 'speed', multiplier: 2, appliesToAll: false },
+  { level: 300, effectType: 'profit', multiplier: 2, appliesToAll: false },
   {
-    level: 200, effectType: 'speed', multiplier: 2, appliesToAll: false,
-    specialEffect: 'alchemyDuration',
+    level: 400, effectType: 'profit', multiplier: 3, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.1,
   },
-  { level: 300, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 400, effectType: 'speed', multiplier: 2, appliesToAll: false },
-  { level: 500, effectType: 'profit', multiplier: 2, appliesToAll: false },
+  { level: 600, effectType: 'profit', multiplier: 4, appliesToAll: false },
   {
-    level: 600, effectType: 'profit', multiplier: 3, appliesToAll: false,
-    specialEffect: 'alchemyDuration',
+    level: 800, effectType: 'profit', multiplier: 5, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.2,
   },
-  { level: 800, effectType: 'profit', multiplier: 4, appliesToAll: false },
+  { level: 1000, effectType: 'profit', multiplier: 10, appliesToAll: false },
   {
-    level: 1000, effectType: 'profit', multiplier: 5, appliesToAll: false,
-    specialEffect: 'alchemyDuration',
+    level: 1500, effectType: 'profit', multiplier: 20, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.3,
   },
-  { level: 1250, effectType: 'profit', multiplier: 10, appliesToAll: false },
-  { level: 1500, effectType: 'profit', multiplier: 10, appliesToAll: false },
+  { level: 2000, effectType: 'profit', multiplier: 50, appliesToAll: false },
   {
-    level: 2000, effectType: 'profit', multiplier: 20, appliesToAll: false,
-    specialEffect: 'alchemyDuration',
+    level: 2500, effectType: 'profit', multiplier: 100, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.4,
   },
-  { level: 2500, effectType: 'profit', multiplier: 50, appliesToAll: false },
-  { level: 3000, effectType: 'profit', multiplier: 100, appliesToAll: false },
+  { level: 3000, effectType: 'profit', multiplier: 200, appliesToAll: false },
   {
-    level: 4000, effectType: 'profit', multiplier: 200, appliesToAll: false,
-    specialEffect: 'alchemyDuration',
+    level: 3500, effectType: 'profit', multiplier: 500, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.5,
   },
-  { level: 5000, effectType: 'profit', multiplier: 500, appliesToAll: false },
-  { level: 6000, effectType: 'profit', multiplier: 1000, appliesToAll: false },
-  { level: 7000, effectType: 'profit', multiplier: 2000, appliesToAll: false },
-  { level: 8000, effectType: 'profit', multiplier: 5000, appliesToAll: false },
-  { level: 10000, effectType: 'profit', multiplier: 5000, appliesToAll: false },
+  { level: 4000, effectType: 'profit', multiplier: 1000, appliesToAll: false },
+  {
+    level: 5000, effectType: 'profit', multiplier: 2000, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.6,
+  },
+  { level: 6000, effectType: 'profit', multiplier: 5000, appliesToAll: false },
+  {
+    level: 7000, effectType: 'profit', multiplier: 10000, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.7,
+  },
+  { level: 8000, effectType: 'profit', multiplier: 20000, appliesToAll: false },
+  {
+    level: 9000, effectType: 'profit', multiplier: 50000, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 1.85,
+  },
+  {
+    level: 10000, effectType: 'profit', multiplier: 100000, appliesToAll: false,
+    specialEffect: 'alchemyDuration', alchemyDurationMultiplier: 2.0,
+  },
 ];
 
 /** Map of hall ID to its milestones (halls 1-6) */

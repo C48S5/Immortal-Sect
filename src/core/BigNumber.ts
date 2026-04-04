@@ -12,6 +12,26 @@ export function D(n: number | string): Decimal {
  * Below 1K: raw integer. 1K+: suffix notation. No scientific notation.
  */
 const SUFFIXES: [Decimal, string][] = [
+  [new Decimal('1e303'), 'Ce'],
+  [new Decimal('1e300'), 'GoC'],
+  [new Decimal('1e120'), 'Tg'],
+  [new Decimal('1e117'), 'uTg'],
+  [new Decimal('1e114'), 'DTg'],
+  [new Decimal('1e111'), 'tTg'],
+  [new Decimal('1e108'), 'qTg'],
+  [new Decimal('1e105'), 'QiTg'],
+  [new Decimal('1e102'), 'sxTg'],
+  [new Decimal('1e99'), 'SpTg'],
+  [new Decimal('1e96'), 'OcTg'],
+  [new Decimal('1e93'), 'NoTg'],
+  [new Decimal('1e90'), 'Tgt'],
+  [new Decimal('1e87'), 'uTgt'],
+  [new Decimal('1e84'), 'DTgt'],
+  [new Decimal('1e81'), 'tTgt'],
+  [new Decimal('1e78'), 'qTgt'],
+  [new Decimal('1e75'), 'QiTgt'],
+  [new Decimal('1e72'), 'sxTgt'],
+  [new Decimal('1e69'), 'SpTgt'],
   [new Decimal('1e66'), 'Uvg'],
   [new Decimal('1e63'), 'Vg'],
   [new Decimal('1e60'), 'Nod'],
@@ -65,8 +85,10 @@ export function formatNumber(n: Decimal): string {
     }
   }
 
-  // Fallback (should not reach here given suffixes go up to 1e66)
-  return n.floor().toString();
+  // Fallback: use e-notation for extremely large numbers beyond suffix table
+  const exp = Math.floor(n.log10());
+  const mantissa = n.div(new Decimal('1e' + exp)).toNumber();
+  return (Math.floor(mantissa * 100) / 100).toFixed(2).replace(/\.?0+$/, '') + 'e' + exp;
 }
 
 /**

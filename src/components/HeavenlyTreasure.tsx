@@ -109,7 +109,7 @@ export function HeavenlyTreasure({ onCollect }: HeavenlyTreasureProps) {
           className="absolute pointer-events-none animate-sparkle"
           style={{ left: sparkle.x - 10, top: sparkle.y - 10 }}
         >
-          <div className="w-5 h-5 rounded-full bg-[#c9a84c] opacity-80" />
+          <div className="w-5 h-5 rounded-full bg-gold opacity-80" />
         </div>
       ))}
     </div>

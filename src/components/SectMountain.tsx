@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useGameStore } from '@state/gameStore';
 import { useHallStore } from '@state/hallStore';
 import { useElderStore } from '@state/elderStore';
+import { useMissionStore } from '@state/missionStore';
 import { D, bulkCost, formatNumber } from '@core/BigNumber';
 import { HallCard } from './HallCard';
 import type { HallState } from '@models/hall';
@@ -9,14 +10,22 @@ import type { ElderState } from '@models/elder';
 import { HALL_CONFIGS } from '@data/hallConfigs';
 import type { HallConfigLookup, BuyMode } from '@state/hallStore';
 
-/** Sect Harmony thresholds */
-const HARMONY_THRESHOLDS = [10, 25, 50, 100, 150, 200, 250, 300, 400, 500];
+/** Sect Harmony thresholds matching sectHarmonyConfigs.ts */
+const HARMONY_THRESHOLDS = [25, 50, 100, 150, 200, 250, 300, 400, 500, 750, 1000, 1500, 2000, 3000, 5000];
 
 function getNextHarmonyThreshold(minLevel: number): number | null {
   for (const t of HARMONY_THRESHOLDS) {
     if (minLevel < t) return t;
   }
   return null;
+}
+
+function getHarmonyReachedCount(minLevel: number): number {
+  let count = 0;
+  for (const t of HARMONY_THRESHOLDS) {
+    if (minLevel >= t) count++;
+  }
+  return count;
 }
 
 /** Convert HALL_CONFIGS to lookup objects the store expects */
@@ -46,6 +55,7 @@ export function SectMountain() {
     const incomePerSec = useHallStore.getState().getTotalRevenuePerSecond(HALL_CONFIG_LOOKUPS);
     const tapBonus = incomePerSec.gt(1) ? incomePerSec : D(1);
     addSpiritStones(tapBonus);
+    useMissionStore.getState().addProgress('meditate', 1);
     setIsMeditating(true);
     setTimeout(() => setIsMeditating(false), 150);
   }, [addSpiritStones]);
@@ -74,6 +84,7 @@ export function SectMountain() {
     if (spiritStones.gte(totalCost)) {
       useGameStore.getState().spendSpiritStones(totalCost);
       useHallStore.getState().buyHall(hallId, count);
+      useMissionStore.getState().addProgress('buyHallLevels', count);
     }
   }, [halls, spiritStones]);
 
@@ -130,89 +141,115 @@ export function SectMountain() {
   }, [hallStates]);
 
   // Sect Harmony
-  const { minLevel, nextHarmony, unlockedCount } = useMemo(() => {
+  const { minLevel, nextHarmony, unlockedCount, reachedCount } = useMemo(() => {
     const unlockedLevels = hallStates.filter((h) => h.unlocked).map((h) => h.level);
     const min = unlockedLevels.length === 12 ? Math.min(...unlockedLevels) : 0;
     return {
       minLevel: min,
       nextHarmony: getNextHarmonyThreshold(min),
       unlockedCount: unlockedLevels.length,
+      reachedCount: getHarmonyReachedCount(min),
     };
   }, [hallStates]);
 
   return (
     <div className="flex flex-col h-full">
-      {/* Meditate button */}
-      <div className="flex flex-col items-center py-6">
-        <button
-          onClick={handleMeditate}
-          className={`
-            w-[120px] h-[120px] rounded-full
-            bg-[rgba(26,122,109,0.2)] border-2 border-[#1a7a6d]
-            text-[#1a7a6d] font-bold text-lg
-            transition-all duration-150 cursor-pointer
-            hover:bg-[rgba(26,122,109,0.35)] hover:shadow-[0_0_30px_rgba(26,122,109,0.4)]
-            animate-pulse-jade
-            ${isMeditating ? 'animate-bounce-click' : ''}
-          `}
-        >
-          <div className="text-2xl mb-1">&#9775;</div>
-          <div>Meditate</div>
-        </button>
-        <div className="mt-2 text-xs text-[#a89660]">
+      {/* Meditate formation */}
+      <div className="flex flex-col items-center py-8">
+        <div className="meditate-formation">
+          <div className="meditate-outer-ring" />
+          <div className="meditate-inner-ring" />
+          <button
+            onClick={handleMeditate}
+            className={`meditate-btn ${isMeditating ? 'animate-bounce-click' : ''}`}
+          >
+            <span className="meditate-icon">&#9775;</span>
+            <span>Meditate</span>
+          </button>
+        </div>
+        <div className="mt-3 text-xs text-gold-muted tracking-wider" style={{ fontFamily: "'Crimson Pro', serif" }}>
           +{(() => {
             const inc = useHallStore.getState().getTotalRevenuePerSecond(HALL_CONFIG_LOOKUPS);
             return inc.gt(1) ? formatNumber(inc) : '1';
-          })()} SS per click
+          })()} Spirit Stones per meditation
         </div>
       </div>
 
       {/* Sect Harmony indicator */}
-      {unlockedCount > 1 && nextHarmony && (
-        <div className="mx-4 mb-3 p-2 rounded bg-[rgba(13,27,42,0.6)] border border-[rgba(45,90,61,0.2)] text-center">
-          <div className="text-xs text-[#a89660]">Sect Harmony</div>
-          <div className="text-xs text-[#e8dcc8]">
-            All halls to Lv {nextHarmony}: {minLevel}/{nextHarmony}
+      {unlockedCount > 1 && (
+        <div className="mx-5 mb-4 harmony-bar text-center">
+          <div className="flex items-center justify-center gap-2">
+            <div className="text-[10px] text-gold-muted tracking-widest uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+              Sect Harmony
+            </div>
+            {reachedCount > 0 && (
+              <span className="text-[10px] text-success font-mono">
+                {reachedCount}/{HARMONY_THRESHOLDS.length} milestones
+              </span>
+            )}
           </div>
-          <div className="w-full h-1.5 rounded-full bg-[rgba(13,27,42,0.6)] mt-1 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-[#c9a84c] transition-all duration-300"
-              style={{ width: `${Math.min((minLevel / nextHarmony) * 100, 100)}%` }}
-            />
-          </div>
+          {nextHarmony ? (
+            <>
+              <div className="text-xs text-warm-white mt-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                All halls to Level {nextHarmony}: {minLevel}/{nextHarmony}
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-[rgba(10,15,26,0.6)] mt-2 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[#a89660] to-[#c9a84c] transition-all duration-300"
+                  style={{ width: `${Math.min((minLevel / nextHarmony) * 100, 100)}%` }}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="text-xs text-success mt-0.5">All milestones reached!</div>
+          )}
+          {unlockedCount < 12 && (
+            <div className="text-[10px] text-gold-muted mt-1">
+              Unlock all 12 halls to begin ({unlockedCount}/12)
+            </div>
+          )}
         </div>
       )}
 
       {/* Mountain backdrop + hall cards */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2">
+      <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-2.5">
         {/* Mountain silhouette */}
-        <div className="relative h-16 mb-2">
-          <svg viewBox="0 0 400 60" className="w-full h-full opacity-20">
+        <div className="relative h-20 mb-3 mountain-backdrop">
+          <svg viewBox="0 0 500 70" className="w-full h-full opacity-15" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="mtnGrad1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#52a36d" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#1d3a28" stopOpacity="0.3" />
+              </linearGradient>
+              <linearGradient id="mtnGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#4a9968" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#0a0f1a" stopOpacity="0.2" />
+              </linearGradient>
+            </defs>
             <polygon
-              points="0,60 50,20 100,35 150,10 200,25 250,5 300,20 350,15 400,30 400,60"
-              fill="#2d5a3d"
+              points="0,70 30,30 80,42 130,15 180,28 220,8 280,22 330,12 380,25 430,18 470,32 500,28 500,70"
+              fill="url(#mtnGrad1)"
             />
             <polygon
-              points="0,60 80,30 160,45 200,25 280,40 360,20 400,45 400,60"
-              fill="#1d3a28"
+              points="0,70 60,38 120,50 180,30 240,42 300,25 360,35 420,28 480,40 500,38 500,70"
+              fill="url(#mtnGrad2)"
             />
+            {/* Subtle cloud wisps */}
+            <ellipse cx="100" cy="35" rx="60" ry="4" fill="rgba(168,150,96,0.04)" />
+            <ellipse cx="350" cy="28" rx="50" ry="3" fill="rgba(168,150,96,0.03)" />
           </svg>
         </div>
 
         {/* Buy mode selector */}
-        <div className="flex items-center justify-center gap-1 mb-2">
-          <span className="text-xs text-[#a89660] mr-2">Buy:</span>
+        <div className="flex items-center justify-center gap-1.5 mb-3">
+          <span className="text-[10px] text-gold-muted mr-2 tracking-widest uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+            Buy
+          </span>
           {([1, 10, 100, 'max'] as BuyMode[]).map((mode) => (
             <button
               key={String(mode)}
               onClick={() => setBuyMode(mode)}
-              className={`
-                px-3 py-1 rounded text-xs font-bold transition-all duration-150
-                ${buyMode === mode
-                  ? 'bg-[rgba(201,168,76,0.25)] border border-[#c9a84c] text-[#c9a84c]'
-                  : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.2)] text-[#a89660] hover:text-[#e8dcc8]'
-                }
-              `}
+              className={`buy-mode-btn ${buyMode === mode ? 'active' : ''}`}
             >
               {mode === 'max' ? 'Max' : `x${mode}`}
             </button>
@@ -220,7 +257,7 @@ export function SectMountain() {
         </div>
 
         {/* Hall cards - reversed so cheapest at bottom */}
-        <div className="flex flex-col-reverse gap-2">
+        <div className="flex flex-col-reverse gap-2.5">
           {visibleHalls.map((config) => {
             const state = hallStates[config.id - 1];
             const elder = elderStates[config.id - 1];

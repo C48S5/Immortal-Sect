@@ -30,9 +30,6 @@ export { CHALLENGE_CONFIGS } from './challengeConfigs';
 
 export { ALCHEMY_ITEM_CONFIGS } from './alchemyConfigs';
 
-export { AUTOMATION_CONFIGS } from './automationConfigs';
-export type { AutomationUnlockConfig, AutomationType } from './automationConfigs';
-
 export { MANDATE_CONFIG } from './mandateConfigs';
 
 export { HDP_SHOP_CONFIGS } from './hdpShopConfigs';

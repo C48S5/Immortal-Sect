@@ -16,6 +16,8 @@ export interface ChallengeConfig {
   rewardType: ChallengeRewardType;
   /** Reward multiplier or percentage value */
   rewardValue: number;
+  /** Target hall ID for hall-specific rewards (e.g. hallProfitMult) */
+  targetHallId?: number;
 }
 
 /** Types of challenge rewards */

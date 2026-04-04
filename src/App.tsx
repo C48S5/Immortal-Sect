@@ -31,10 +31,14 @@ import { DungeonPanel } from '@components/DungeonPanel';
 import { LegacyShrinePanel } from '@components/LegacyShrinePanel';
 import { HeavenlyTreasure } from '@components/HeavenlyTreasure';
 import { SettingsPanel } from '@components/SettingsPanel';
+import { AutomationPanel } from '@components/AutomationPanel';
+import { MissionPanel } from '@components/MissionPanel';
+import { useMissionStore } from '@state/missionStore';
 import { OfflineReturnScreen } from '@components/OfflineReturnScreen';
 import { getActiveMilestones, getSectHarmonyBonus, getBodyTemperingAllBonus, getAEBonusFromMilestones } from '@systems/MilestoneSystem';
 import { calculateAEPerSecond } from '@systems/AlchemySystem';
 import { CHALLENGE_CONFIGS } from '@data/challengeConfigs';
+import { ALCHEMY_ITEM_CONFIGS } from '@data/alchemyConfigs';
 import Decimal from 'break_infinity.js';
 import '@styles/index.css';
 
@@ -57,19 +61,21 @@ const TABS: TabDef[] = [
   { id: 'elders', label: 'Elders', isVisible: (s) => s.highestHallLevel >= 5 },
   { id: 'alchemy', label: 'Alchemy', isVisible: (s) => s.hasElder },
   { id: 'daoPath', label: 'Dao Path', isVisible: (s) => s.ascensionCount >= 1 },
-  { id: 'challenges', label: 'Challenges', isVisible: (s) => s.ascensionCount >= 1 },
-  { id: 'mandate', label: 'Mandate', isVisible: (s) => s.ascensionCount >= 1 },
-  { id: 'hdpShop', label: 'HDP Shop', isVisible: (s) => s.ascensionCount >= 1 },
+  { id: 'challenges', label: 'Tribulations', isVisible: (s) => s.ascensionCount >= 1 },
+  { id: 'mandate', label: 'Mandates', isVisible: (s) => s.ascensionCount >= 1 },
+  { id: 'hdpShop', label: 'Empyrean', isVisible: (s) => s.ascensionCount >= 1 },
+  { id: 'automation', label: 'Automation', isVisible: (s) => s.ascensionCount >= 1 },
+  { id: 'missions', label: 'Missions', isVisible: (s) => s.ascensionCount >= 1 },
   { id: 'disciples', label: 'Disciples', isVisible: (s) => s.hasDisciples },
-  { id: 'dungeons', label: 'Dungeons', isVisible: (s) => s.hasDisciples },
+  { id: 'dungeons', label: 'Secret Realms', isVisible: (s) => s.hasDisciples },
   { id: 'legacy', label: 'Legacy', isVisible: (s) => s.hasDisciples },
   { id: 'settings', label: 'Settings', isVisible: () => true },
 ];
 
 /** Count Void Meditation Sanctum (Hall 9) offline efficiency milestones reached */
 function getVoidMeditationTier(hall9Level: number): number {
-  // Hall 9 milestones with specialEffect 'offlineEfficiency' grant tiers 0-5
-  const thresholds = [200, 600, 1000, 2000, 4000]; // From Hall 9 milestone configs
+  // Hall 9 milestones with specialEffect 'offlineEfficiency' at GDD-accurate levels
+  const thresholds = [500, 1200, 2500, 3500, 4500, 6000, 8000, 10000, 12000, 15000];
   let tier = 0;
   for (const t of thresholds) {
     if (hall9Level >= t) tier++;
@@ -146,6 +152,7 @@ function buildSaveState(): SaveGameState {
     hdpShopPurchases: ps.hdpShopPurchases,
     bestHDP: ps.ascensionHistory.bestHDP,
     fastestAscension: ps.ascensionHistory.fastestAscension,
+    totalRevenueThisRun: ps.totalRevenueThisRun.toString(),
     settings: gs.settings,
     alchemyBuffs: useAlchemyStore.getState().activeBuffs,
     daoPathSpell: {
@@ -212,12 +219,28 @@ function hydrateSave(data: SaveGameState): void {
     totalHDP: data.totalHDP,
     spentHDP: data.spentHDP,
     hdpShopPurchases: data.hdpShopPurchases,
+    totalRevenueThisRun: data.totalRevenueThisRun ? new Decimal(data.totalRevenueThisRun) : D(0),
     ascensionHistory: {
       count: data.ascensionCount,
       bestHDP: data.bestHDP,
       fastestAscension: data.fastestAscension,
     },
   });
+}
+
+/** Sync hall isAutomated flag with elder hired state after loading */
+function syncHallAutomation(): void {
+  const hs = useHallStore.getState();
+  const es = useElderStore.getState();
+  for (const config of ELDER_CONFIGS) {
+    const elder = es.elders[config.id];
+    if (elder?.hired) {
+      const hall = hs.halls[config.hallId];
+      if (hall && !hall.isAutomated) {
+        hs.setAutomated(config.hallId, true);
+      }
+    }
+  }
 }
 
 /** Initialize hall slots for all 12 halls if they don't exist yet */
@@ -250,6 +273,7 @@ ensureEldersInitialized();
 useMandateStore.getState().initSlots();
 useChallengeStore.getState().initChallenges();
 useDungeonStore.getState().initRealms();
+useMissionStore.getState().refreshIfNeeded();
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('sect');
@@ -318,6 +342,10 @@ export default function App() {
         clearTimeout(saveTimeout.current);
         saveTimeout.current = setTimeout(() => saveToDisk(buildSaveState()), 2000);
       }),
+      usePrestigeStore.subscribe(() => {
+        clearTimeout(saveTimeout.current);
+        saveTimeout.current = setTimeout(() => saveToDisk(buildSaveState()), 2000);
+      }),
     ];
     return () => {
       clearTimeout(saveTimeout.current);
@@ -340,6 +368,7 @@ export default function App() {
     const savedData = loadSave();
     if (savedData) {
       hydrateSave(savedData);
+      syncHallAutomation();
 
       // 3. Check offline earnings
       const now = Date.now();
@@ -477,6 +506,29 @@ export default function App() {
               }
             }
           }
+
+          // Auto-craft pills (10000 HDP = pills 1-3, 15000 HDP = all pills)
+          if (hdp >= 10000) {
+            const pillMax = hdp >= 15000 ? 10 : 3;
+            const alchStore = useAlchemyStore.getState();
+            const activeItemIds = new Set(alchStore.activeBuffs.map((b) => b.itemId));
+            const hall3Level = hs.halls[3]?.level ?? 0;
+
+            for (let pillId = 1; pillId <= pillMax; pillId++) {
+              if (activeItemIds.has(pillId)) continue;
+              const pc = ALCHEMY_ITEM_CONFIGS.find((c) => c.id === pillId);
+              if (!pc || hall3Level < pc.unlockLevel) continue;
+              if (gs.alchemyEssence.gte(pc.aeCost)) {
+                gs.addAE(D(-pc.aeCost));
+                alchStore.addBuff({
+                  itemId: pc.id,
+                  remainingSeconds: pc.durationSeconds,
+                  multiplier: pc.multiplier,
+                  affectedHallIds: pc.affectedHallIds,
+                });
+              }
+            }
+          }
         },
         applyBuffs: () => {
           const dt = lastDeltaTime;
@@ -544,6 +596,7 @@ export default function App() {
       .getTotalRevenuePerSecond(HALL_CONFIG_LOOKUPS);
     const bonus = incomePerSec.gt(0) ? incomePerSec.mul(10) : D(10);
     addSpiritStones(bonus);
+    useMissionStore.getState().addProgress('collectTreasure', 1);
   }, [addSpiritStones]);
 
   const renderContent = () => {
@@ -555,6 +608,8 @@ export default function App() {
       case 'challenges': return <ChallengePanel />;
       case 'mandate': return <MandatePanel />;
       case 'hdpShop': return <HdpShopPanel />;
+      case 'automation': return <AutomationPanel />;
+      case 'missions': return <MissionPanel />;
       case 'disciples': return <DisciplePanel />;
       case 'dungeons': return <DungeonPanel />;
       case 'legacy': return <LegacyShrinePanel />;
@@ -564,7 +619,22 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-[#0d1b2a] to-[#1a0a2e] text-[#e8dcc8]">
+    <div className="flex flex-col h-screen text-warm-white relative">
+      {/* Ambient qi particles */}
+      <div className="qi-particles">
+        {Array.from({ length: 8 }, (_, i) => (
+          <div
+            key={`qi-${i}`}
+            className="qi-particle animate-qi-particle"
+            style={{
+              left: `${8 + i * 12}%`,
+              animationDelay: `${i * 1.2}s`,
+              animationDuration: `${8 + i * 1.5}s`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Offline return overlay */}
       {offlineReturn && (
         <OfflineReturnScreen
@@ -577,15 +647,16 @@ export default function App() {
       {/* Top currency bar */}
       <CurrencyBar />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative z-[2]">
         {/* Left sidebar navigation */}
-        <nav className="w-44 shrink-0 flex flex-col bg-[rgba(13,27,42,0.9)] border-r border-[rgba(45,90,61,0.3)] overflow-y-auto">
-          <div className="p-3 border-b border-[rgba(45,90,61,0.2)]">
-            <h1 className="text-sm font-bold text-[#c9a84c] tracking-wider">IMMORTAL SECT</h1>
-            <p className="text-[10px] text-[#a89660]">Cultivation Tycoon</p>
+        <nav className="w-48 shrink-0 flex flex-col sect-sidebar overflow-y-auto">
+          <div className="p-4 pb-3">
+            <h1 className="sect-title text-sm">Immortal Sect</h1>
+            <p className="sect-subtitle">Cultivation Tycoon</p>
+            <div className="sect-divider mt-3" />
           </div>
 
-          <div className="flex-1 py-2 space-y-0.5">
+          <div className="flex-1 py-1">
             {visibleTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               const isNewlyUnlocked = tab.id === 'elders' && highestHallLevel >= 5 && highestHallLevel < 10;
@@ -595,11 +666,8 @@ export default function App() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`
-                    w-full px-3 py-2 text-left text-sm font-medium transition-all duration-200
-                    ${isActive
-                      ? 'bg-[rgba(45,90,61,0.2)] text-[#c9a84c] border-r-2 border-[#c9a84c]'
-                      : 'text-[#a89660] hover:text-[#e8dcc8] hover:bg-[rgba(45,90,61,0.1)]'
-                    }
+                    w-full text-left sect-nav-item
+                    ${isActive ? 'active' : 'text-gold-muted'}
                     ${isNewlyUnlocked ? 'animate-pulse-cyan' : ''}
                   `}
                 >
@@ -611,10 +679,10 @@ export default function App() {
 
           {/* Ascension button at bottom of sidebar */}
           {ascensionCount > 0 || highestHallLevel >= 25 ? (
-            <div className="p-2 border-t border-[rgba(45,90,61,0.2)]">
+            <div className="p-3 border-t border-[rgba(45,90,61,0.1)]">
               <button
                 onClick={() => setShowAscension(true)}
-                className="w-full py-2 rounded-lg bg-[rgba(201,168,76,0.1)] border border-[#c9a84c] text-[#c9a84c] text-xs font-bold hover:bg-[rgba(201,168,76,0.2)] transition-all"
+                className="w-full ascend-btn"
               >
                 Ascend
               </button>
@@ -623,7 +691,7 @@ export default function App() {
         </nav>
 
         {/* Main content area */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto relative">
           {renderContent()}
         </main>
       </div>

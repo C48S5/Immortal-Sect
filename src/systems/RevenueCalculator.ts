@@ -124,7 +124,7 @@ function getSpellMultiplier(hallId: number, state: GameStateSnapshot): Decimal {
   return D(mult);
 }
 
-function getChallengeRewardMultiplier(_hallId: number, state: GameStateSnapshot): Decimal {
+function getChallengeRewardMultiplier(hallId: number, state: GameStateSnapshot): Decimal {
   let mult = D(1);
   for (const cs of state.challenges) {
     if (!cs.completed) continue;
@@ -137,8 +137,10 @@ function getChallengeRewardMultiplier(_hallId: number, state: GameStateSnapshot)
         mult = mult.mul(config.rewardValue);
         break;
       case 'hallProfitMult':
-        // Apply to all halls (permanent reward)
-        mult = mult.mul(config.rewardValue);
+        // Only apply to the target hall, or all halls if no target specified
+        if (!config.targetHallId || config.targetHallId === hallId) {
+          mult = mult.mul(config.rewardValue);
+        }
         break;
       default:
         // Other reward types handled by their respective systems

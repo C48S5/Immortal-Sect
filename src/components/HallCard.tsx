@@ -126,80 +126,72 @@ function HallCardInner({ config, state, elder, spiritStones, buyMode, onBuy }: H
   return (
     <div
       onClick={handleCardClick}
+      data-element={config.element}
       className={`
-        relative p-3 rounded-lg border transition-all duration-200
-        bg-[rgba(13,27,42,0.85)] border-[rgba(45,90,61,0.3)]
+        hall-card
         ${showMilestoneBurst ? 'animate-milestone-burst' : ''}
         ${proximityGlow}
-        ${isManualClickable ? 'cursor-pointer hover:border-[rgba(26,122,109,0.6)] hover:bg-[rgba(13,27,42,0.95)]' : ''}
+        ${isManualClickable ? 'cursor-pointer hover:border-[rgba(26,122,109,0.4)]' : ''}
       `}
     >
       {/* Click hint for manual halls */}
       {isManualClickable && (
-        <div className="absolute top-1 right-2 text-[10px] text-[#1a7a6d] animate-pulse">
-          click to cultivate
+        <div className="absolute top-2 right-3 text-[9px] text-[#2ba695] animate-breathe tracking-wider uppercase"
+          style={{ fontFamily: "'Cinzel', serif" }}>
+          tap to cultivate
         </div>
       )}
 
       {/* Header: icon + name + level + revenue */}
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{ELEMENT_ICONS[config.element] ?? '☯️'}</span>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <span className="hall-element-icon">{ELEMENT_ICONS[config.element] ?? '☯️'}</span>
           <div>
-            <h3 className="text-sm font-bold text-[#e8dcc8] leading-tight">{config.name}</h3>
-            <div className="flex items-center gap-2 text-xs text-[#a89660]">
-              <span>Lv {state.level}</span>
+            <h3 className="hall-name leading-tight">{config.name}</h3>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="hall-level">Level {state.level}</span>
               {elder?.hired && (
-                <span className="px-1 py-0.5 rounded bg-[rgba(45,90,61,0.3)] text-[#3d7a52] text-[10px]">
-                  Elder ✓
+                <span className="px-1.5 py-0.5 rounded bg-[rgba(45,90,61,0.15)] text-[#52a36d] text-[9px] tracking-wider uppercase"
+                  style={{ fontFamily: "'Cinzel', serif" }}>
+                  Elder
                 </span>
               )}
             </div>
             {nextMilestone && (
-              <div className={`text-[11px] ${nextMilestone.toGo <= 5 ? 'text-[#c9a84c] font-bold' : 'text-[#a89660]'}`}>
-                Lv {nextMilestone.level} = {nextMilestone.reward} ({nextMilestone.toGo} to go)
+              <div className={`text-[10px] mt-0.5 ${nextMilestone.toGo <= 5 ? 'text-gold' : 'text-gold-muted'}`}
+                style={{ fontFamily: "'Crimson Pro', serif" }}>
+                Level {nextMilestone.level} = {nextMilestone.reward} ({nextMilestone.toGo} to go)
               </div>
             )}
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-[#2d5a3d] font-mono font-bold">{formatNumber(revenuePerSec)}/s</div>
+          <div className="hall-revenue">{formatNumber(revenuePerSec)}/s</div>
         </div>
       </div>
 
-      {/* Cycle progress bar — BIG, visible, smooth CSS transition */}
-      <div className="w-full h-5 rounded-full bg-[rgba(13,27,42,0.6)] border border-[rgba(45,90,61,0.2)] overflow-hidden mb-2 relative">
+      {/* Cycle progress bar */}
+      <div className="cycle-bar-track mb-2.5">
         <div
           ref={progressRef}
-          className="h-full rounded-full cycle-bar-fill"
+          className="cycle-bar-fill"
           style={{
             width: `${state.cycleProgress * 100}%`,
             transition: state.cycleProgress > 0.01 ? 'width 200ms linear' : 'none',
-            boxShadow: state.cycleProgress > 0 ? '0 0 6px rgba(46,139,87,0.4)' : 'none',
+            boxShadow: state.cycleProgress > 0 ? '0 0 8px rgba(45,90,61,0.3)' : 'none',
           }}
         />
-        {state.level > 0 && state.isRunning && (
-          <div className="absolute inset-0 flex items-center justify-center text-[10px] text-[#e8dcc8]/60 font-mono pointer-events-none">
-            {Math.round(state.cycleProgress * 100)}%
-          </div>
-        )}
       </div>
 
-      {/* Single buy button on the right */}
+      {/* Buy row */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-[#a89660]">
-          Cost: <span className="text-[#e8dcc8] font-mono">{formatNumber(buyCost)}</span>
+        <div className="text-[11px] text-gold-muted" style={{ fontFamily: "'Crimson Pro', serif" }}>
+          Cost: <span className="text-warm-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{formatNumber(buyCost)}</span>
         </div>
         <button
           onClick={handleBuy}
           disabled={!canAfford}
-          className={`
-            px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-150
-            ${canAfford
-              ? 'bg-[rgba(201,168,76,0.2)] border border-[#c9a84c] text-[#c9a84c] hover:bg-[rgba(201,168,76,0.35)] animate-pulse-gold'
-              : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-[#a89660]/40 cursor-not-allowed'
-            }
-          `}
+          className={`buy-btn ${canAfford ? 'affordable' : 'disabled'}`}
         >
           Buy {buyMode === 'max' ? `Max (${buyCount})` : `x${buyMode}`}
         </button>

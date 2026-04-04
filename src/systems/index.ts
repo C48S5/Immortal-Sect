@@ -12,9 +12,6 @@ export * as RevenueCalculator from './RevenueCalculator';
 // Milestone tracking and bonuses
 export * as MilestoneSystem from './MilestoneSystem';
 
-// Ascension / Heavenly Dao Points
-export * as PrestigeSystem from './PrestigeSystem';
-
 // Dao Path factions and spells
 export * as DaoPathSystem from './DaoPathSystem';
 

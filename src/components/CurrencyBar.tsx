@@ -11,13 +11,13 @@ const HALL_LOOKUPS = HALL_CONFIGS.map((c) => ({
 
 /** Currency display config */
 const CURRENCY_DEFS = [
-  { key: 'spiritStones', label: 'Spirit Stones', color: '#2d5a3d', isDecimal: true, unlockKey: null },
-  { key: 'hdp', label: 'HDP', color: '#c9a84c', isDecimal: false, unlockKey: 'hdp' },
-  { key: 'daoCrystals', label: 'DC', color: '#3d1f6d', isDecimal: false, unlockKey: 'daoCrystals' },
-  { key: 'alchemyEssence', label: 'AE', color: '#c9a84c', isDecimal: true, unlockKey: 'alchemyEssence' },
-  { key: 'recruitmentTokens', label: 'RT', color: '#1a7a6d', isDecimal: false, unlockKey: 'recruitmentTokens' },
-  { key: 'heavenlySeals', label: 'HS', color: '#1a4a7a', isDecimal: false, unlockKey: 'heavenlySeals' },
-  { key: 'qiResidue', label: 'QR', color: '#808080', isDecimal: false, unlockKey: 'qiResidue' },
+  { key: 'spiritStones', label: 'Spirit Stones', color: '#4a9968', isDecimal: true, unlockKey: null },
+  { key: 'hdp', label: 'Dao Points', color: '#c9a84c', isDecimal: false, unlockKey: 'hdp' },
+  { key: 'daoCrystals', label: 'Dao Crystals', color: '#3d1f6d', isDecimal: false, unlockKey: 'daoCrystals' },
+  { key: 'alchemyEssence', label: 'Essence', color: '#c9a84c', isDecimal: true, unlockKey: 'alchemyEssence' },
+  { key: 'recruitmentTokens', label: 'Tokens', color: '#2ba695', isDecimal: false, unlockKey: 'recruitmentTokens' },
+  { key: 'heavenlySeals', label: 'Seals', color: '#3d7ec4', isDecimal: false, unlockKey: 'heavenlySeals' },
+  { key: 'qiResidue', label: 'Qi Residue', color: '#808080', isDecimal: false, unlockKey: 'qiResidue' },
 ] as const;
 
 export function CurrencyBar() {
@@ -40,13 +40,13 @@ export function CurrencyBar() {
   };
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-[rgba(13,27,42,0.9)] border-b border-[rgba(45,90,61,0.3)] flex-wrap">
+    <div className="currency-bar flex items-center gap-2 px-5 py-2.5 flex-wrap relative z-[3]">
       {/* Spirit Stones + SS/s — always visible, prominent */}
-      <div className="flex items-center gap-1.5 px-3 py-1 rounded bg-[rgba(13,27,42,0.6)] border border-[rgba(45,90,61,0.3)]">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#2d5a3d]" />
-        <span className="text-sm text-[#e8dcc8] font-mono font-bold">{formatNumber(spiritStones)}</span>
-        <span className="text-xs text-[#3d7a52] font-mono">
-          (+{formatNumber(totalPerSec)}/s)
+      <div className="currency-pill" style={{ borderColor: 'rgba(45, 90, 61, 0.3)' }}>
+        <span className="currency-dot" style={{ color: '#4a9968', backgroundColor: '#4a9968' }} />
+        <span className="currency-value">{formatNumber(spiritStones)}</span>
+        <span className="currency-rate">
+          +{formatNumber(totalPerSec)}/s
         </span>
       </div>
 
@@ -61,13 +61,10 @@ export function CurrencyBar() {
           : formatNumber(D(val as number));
 
         return (
-          <div
-            key={def.key}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[rgba(13,27,42,0.6)] border border-[rgba(45,90,61,0.2)]"
-          >
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: def.color }} />
-            <span className="text-[10px] text-[#a89660] font-bold">{def.label}</span>
-            <span className="text-xs text-[#e8dcc8] font-mono">{display}</span>
+          <div key={def.key} className="currency-pill">
+            <span className="currency-dot" style={{ color: def.color, backgroundColor: def.color }} />
+            <span className="currency-label">{def.label}</span>
+            <span className="currency-value">{display}</span>
           </div>
         );
       })}

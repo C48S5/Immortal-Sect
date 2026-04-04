@@ -19,24 +19,24 @@ export function HdpShopPanel() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-[#c9a84c]">HDP Empyrean Shop</h2>
+        <h2 className="section-header">Empyrean Exchange</h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-3 py-1 rounded bg-[rgba(201,168,76,0.1)] border border-[rgba(201,168,76,0.3)]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#c9a84c]" />
-            <span className="text-sm font-mono text-[#c9a84c]">{availableHDP} / {totalHDP} HDP</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-gold" />
+            <span className="text-sm font-mono text-gold">{availableHDP} / {totalHDP} HDP</span>
           </div>
-          <div className="text-xs text-[#a89660]">
-            Passive: <span className="text-[#c9a84c] font-bold">x{passiveMultiplier.toFixed(2)}</span>
+          <div className="text-xs text-gold-muted">
+            Passive: <span className="text-gold font-bold">x{passiveMultiplier.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
       <div className="mb-4 p-2 rounded bg-[rgba(139,37,0,0.1)] border border-[rgba(139,37,0,0.3)]">
-        <p className="text-xs text-[#8b2500]">
-          Warning: Spending HDP reduces your passive income bonus.
-          Each unspent HDP provides +2% to all income.
+        <p className="text-xs text-crimson">
+          Caution: Each spent point diminishes your passive Dao resonance.
+          Unspent points grant +2% to all income.
         </p>
       </div>
 
@@ -52,19 +52,19 @@ export function HdpShopPanel() {
               className={`
                 flex items-center justify-between p-3 rounded-lg border transition-all duration-200
                 bg-[rgba(13,27,42,0.85)]
-                ${isPurchased ? 'border-[#4caf50] opacity-70' : 'border-[rgba(45,90,61,0.3)]'}
+                ${isPurchased ? 'border-success opacity-70' : 'border-[rgba(45,90,61,0.3)]'}
               `}
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-[#e8dcc8]">{upgrade.name}</h3>
-                  {isPurchased && <span className="text-[#4caf50]">&#10004;</span>}
+                  <h3 className="text-sm font-bold text-warm-white">{upgrade.name}</h3>
+                  {isPurchased && <span className="text-success">&#10004;</span>}
                 </div>
-                <p className="text-xs text-[#a89660]">{upgrade.effectDescription}</p>
+                <p className="text-xs text-gold-muted">{upgrade.effectDescription}</p>
               </div>
 
               {isPurchased ? (
-                <span className="text-xs text-[#4caf50] font-bold px-3">Owned</span>
+                <span className="text-xs text-success font-bold px-3">Attained</span>
               ) : (
                 <button
                   onClick={() => handlePurchase(upgrade)}
@@ -72,8 +72,8 @@ export function HdpShopPanel() {
                   className={`
                     ml-3 px-4 py-2 rounded text-xs font-bold transition-all duration-150
                     ${canAfford
-                      ? 'bg-[rgba(201,168,76,0.15)] border border-[#c9a84c] text-[#c9a84c] hover:bg-[rgba(201,168,76,0.3)]'
-                      : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-[#a89660]/40 cursor-not-allowed'
+                      ? 'bg-[rgba(201,168,76,0.15)] border border-gold text-gold hover:bg-[rgba(201,168,76,0.3)]'
+                      : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-gold-muted/40 cursor-not-allowed'
                     }
                   `}
                 >

@@ -27,7 +27,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
           </pre>
           <button
             onClick={() => { localStorage.clear(); window.location.reload(); }}
-            style={{ marginTop: 20, padding: '10px 20px', background: '#8b2500', color: '#e8dcc8', border: 'none', cursor: 'pointer', borderRadius: 4 }}
+            style={{ marginTop: 20, padding: '10px 20px', background: '#d94a2b', color: '#e8dcc8', border: 'none', cursor: 'pointer', borderRadius: 4 }}
           >
             Clear Save & Reload
           </button>

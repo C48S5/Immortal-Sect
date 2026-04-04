@@ -45,6 +45,7 @@ export interface SaveGameState {
   hdpShopPurchases: Record<string, number>;
   bestHDP: number;
   fastestAscension: number;
+  totalRevenueThisRun?: string;
 
   // Settings
   settings: {

@@ -62,16 +62,6 @@ export interface LegacyFragment {
   traitPower?: number;
 }
 
-/** Qi Residue shop buff */
-export interface QiResidueBuffConfig {
-  id: number;
-  name: string;
-  description: string;
-  cost: number;
-  maxPurchases: number;
-  effect: { type: string; value: number };
-}
-
 /** Legacy system state */
 export interface LegacyState {
   legacyPower: number;

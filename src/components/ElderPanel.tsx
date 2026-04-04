@@ -32,11 +32,11 @@ export function ElderPanel() {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold text-[#c9a84c] mb-4">Council of Elders</h2>
-      <p className="text-sm text-[#a89660] mb-4">
-        Hire elders to automate your cultivation halls. Each elder runs their assigned hall
-        continuously without manual intervention.
+    <div className="p-5">
+      <h2 className="section-header mb-2">Council of Elders</h2>
+      <p className="text-sm text-gold-muted mb-5" style={{ fontFamily: "'Crimson Pro', serif" }}>
+        Appoint elders to oversee your cultivation halls. Each elder maintains their hall's
+        cycle without pause.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -49,49 +49,43 @@ export function ElderPanel() {
             <div
               key={config.id}
               className={`
-                relative p-3 rounded-lg border transition-all duration-200
-                bg-[rgba(13,27,42,0.85)] border-[rgba(45,90,61,0.3)]
-                ${isHired ? 'border-[#2d5a3d]' : ''}
-                ${!isUnlocked ? 'opacity-50' : ''}
+                character-card
+                ${isHired ? 'border-[rgba(45,90,61,0.4)]' : ''}
+                ${!isUnlocked ? 'opacity-40' : ''}
               `}
             >
               {/* Lock overlay */}
               {!isUnlocked && (
                 <div className="absolute inset-0 flex items-center justify-center bg-[rgba(0,0,0,0.5)] rounded-lg z-10">
-                  <span className="text-2xl">&#x1F512;</span>
+                  <span className="text-2xl opacity-60">&#x1F512;</span>
                 </div>
               )}
 
               {/* Elder info */}
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="text-sm font-bold text-[#e8dcc8]">{config.name}</h3>
-                  <p className="text-xs text-[#a89660] italic">{config.title}</p>
+                  <h3 className="character-name text-warm-white">{config.name}</h3>
+                  <p className="text-xs text-gold-muted italic" style={{ fontFamily: "'Crimson Pro', serif" }}>{config.title}</p>
                 </div>
                 {isHired && (
-                  <span className="text-lg text-[#4caf50]">&#10004;</span>
+                  <span className="text-sm text-[#52a36d]">&#10004;</span>
                 )}
               </div>
 
-              <p className="text-xs text-[#a89660] mb-2">
-                Automates: {HALL_CONFIGS[config.id - 1]?.name ?? `Hall ${config.id}`}
+              <p className="text-[11px] text-gold-muted mb-3" style={{ fontFamily: "'Crimson Pro', serif" }}>
+                Automates: <span className="text-warm-white">{HALL_CONFIGS[config.id - 1]?.name ?? `Hall ${config.id}`}</span>
               </p>
 
               {isHired ? (
-                <div className="text-xs text-[#3d7a52] font-bold py-1.5 text-center rounded bg-[rgba(45,90,61,0.15)]">
-                  Active — Hall is automated
+                <div className="text-[10px] text-[#52a36d] py-1.5 text-center rounded bg-[rgba(45,90,61,0.1)] border border-[rgba(45,90,61,0.2)] tracking-wider uppercase"
+                  style={{ fontFamily: "'Cinzel', serif" }}>
+                  Active
                 </div>
               ) : (
                 <button
                   onClick={() => handleHire(config.id)}
                   disabled={!isUnlocked || !canAfford}
-                  className={`
-                    w-full py-1.5 rounded text-xs font-bold transition-all duration-150
-                    ${canAfford && isUnlocked
-                      ? 'bg-[rgba(201,168,76,0.15)] border border-[#c9a84c] text-[#c9a84c] hover:bg-[rgba(201,168,76,0.3)] animate-pulse-gold'
-                      : 'bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.15)] text-[#a89660]/40 cursor-not-allowed'
-                    }
-                  `}
+                  className={`w-full buy-btn ${canAfford && isUnlocked ? 'affordable' : 'disabled'}`}
                 >
                   Hire — {formatNumber(config.cost)} SS
                 </button>
