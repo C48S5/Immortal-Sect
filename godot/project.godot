@@ -1,0 +1,30 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; but it can also be manually edited.
+
+[application]
+
+config/name="Cultivation Sect Tycoon"
+config/description="An idle incremental game where you build a legendary cultivation sect."
+run/main_scene="res://src/ui/main_scene.tscn"
+config/features=PackedStringArray("4.2", "GL Compatibility")
+
+[autoload]
+
+EventBus="*res://src/autoloads/event_bus.gd"
+GameData="*res://src/autoloads/game_data.gd"
+GameManager="*res://src/autoloads/game_manager.gd"
+SaveManager="*res://src/autoloads/save_manager.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=1
