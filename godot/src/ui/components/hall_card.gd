@@ -158,23 +158,23 @@ func _process(_delta: float) -> void:
 	level_label.text = "Lv. %d" % state.level
 	progress_bar.value = state.cycle_progress
 
-	var cost := GameManager.get_hall_cost(hall_id, 1)
+	var cost = GameManager.get_hall_cost(hall_id, 1)
 	cost_label.text = "Cost: %s" % cost.format()
-	var affordable := GameManager.spirit_stones.gte(cost)
+	var affordable = GameManager.spirit_stones.gte(cost)
 	buy_button.disabled = not affordable
 
-	var cost10 := GameManager.get_hall_cost(hall_id, 10)
+	var cost10 = GameManager.get_hall_cost(hall_id, 10)
 	buy_10_button.disabled = GameManager.spirit_stones.lt(cost10)
 
-	var max_count := GameManager.get_max_affordable_halls(hall_id)
+	var max_count = GameManager.get_max_affordable_halls(hall_id)
 	buy_max_button.disabled = max_count <= 0
 	if max_count > 0:
 		buy_max_button.text = "x%d" % max_count
 
 	if state.level > 0:
-		var rev := GameManager.calculate_hall_revenue(hall_id)
+		var rev = GameManager.calculate_hall_revenue(hall_id)
 		revenue_label.text = "Revenue: %s/cycle" % rev.format()
-		var rps := GameManager.get_hall_revenue_per_second(hall_id)
+		var rps = GameManager.get_hall_revenue_per_second(hall_id)
 		rps_label.text = "%s/s" % rps.format()
 	else:
 		revenue_label.text = "Not built yet"

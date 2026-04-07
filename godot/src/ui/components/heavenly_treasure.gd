@@ -55,14 +55,15 @@ func _process(delta: float) -> void:
 		direction.y = -direction.y
 
 func _on_collected() -> void:
-	var rps := GameManager.get_total_revenue_per_second()
-	var value := rps.mul(10.0 * value_mult).max_bn(BigNumber.new(10))
+	var rps = GameManager.get_total_revenue_per_second()
+	var BN = preload("res://src/core/big_number.gd")
+	var value = rps.mul(10.0 * value_mult).max_bn(BN.new(10))
 	GameManager._earn_spirit_stones(value)
 	EventBus.treasure_collected.emit(value)
 	_show_value_popup(value)
 	queue_free()
 
-func _show_value_popup(value: BigNumber) -> void:
+func _show_value_popup(value) -> void:
 	var popup := Label.new()
 	popup.text = "+%s SS" % value.format()
 	popup.add_theme_color_override("font_color", XianxiaTheme.ACCENT_GOLD)

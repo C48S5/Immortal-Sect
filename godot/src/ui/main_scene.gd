@@ -93,7 +93,7 @@ func _build_left_column(parent: HBoxContainer) -> void:
 		btn.text = TAB_LABELS[tab_key]
 		btn.add_theme_font_size_override("font_size", 14)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		var tab := tab_key
+		var tab: String = tab_key
 		btn.pressed.connect(func(): _switch_tab(tab))
 		tab_buttons[tab_key] = btn
 		nav.add_child(btn)
@@ -182,7 +182,7 @@ func _on_treasure_spawned() -> void:
 	treasure.set_script(treasure_script)
 	treasure_layer.add_child(treasure)
 
-func _on_offline_return(earned: BigNumber, dur: float) -> void:
+func _on_offline_return(earned, dur: float) -> void:
 	if dur < 60:
 		return
 	var popup_script := preload("res://src/ui/components/offline_return.gd")

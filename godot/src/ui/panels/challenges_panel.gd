@@ -121,10 +121,10 @@ func _create_challenge_card(config: Dictionary) -> PanelContainer:
 
 func _process(_delta: float) -> void:
 	if GameManager.active_challenge_id > 0:
-		var ch := GameData.get_challenge(GameManager.active_challenge_id)
+		var ch = GameData.get_challenge(GameManager.active_challenge_id)
 		active_challenge_label.text = "Active: %s" % ch.name
-		var progress := GameManager.challenge_earnings.format()
-		var target_str := ch.target_earnings.format()
+		var progress = GameManager.challenge_earnings.format()
+		var target_str = ch.target_earnings.format()
 		challenge_progress_label.text = "%s / %s SS" % [progress, target_str]
 		abandon_button.visible = true
 	else:

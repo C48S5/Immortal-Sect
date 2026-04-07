@@ -2,10 +2,10 @@ extends PanelContainer
 
 ## Shown when returning from offline to display earnings.
 
-var earnings: BigNumber
+var earnings = null
 var duration: float
 
-func setup(earned: BigNumber, dur: float) -> void:
+func setup(earned, dur: float) -> void:
 	earnings = earned
 	duration = dur
 

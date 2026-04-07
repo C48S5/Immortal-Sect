@@ -2,8 +2,11 @@ extends Node
 
 ## Core game state and simulation loop.
 
+# Preload BigNumber to avoid class_name registration ordering issues
+const BN = preload("res://src/core/big_number.gd")
+
 # -- Currencies --
-var spirit_stones: BigNumber = BigNumber.new(0)
+var spirit_stones = null
 var hdp: int = 0
 var hdp_spent: int = 0
 var dao_crystals: int = 0
@@ -32,10 +35,10 @@ var active_buffs: Array[Dictionary] = []
 # -- Challenge state --
 var challenge_completed: Dictionary = {}
 var active_challenge_id: int = -1
-var challenge_earnings: BigNumber = BigNumber.new(0)
+var challenge_earnings = null
 
 # -- Prestige/Ascension tracking --
-var total_earnings_this_run: BigNumber = BigNumber.new(0)
+var total_earnings_this_run = null
 var ascension_count: int = 0
 var total_play_time: float = 0.0
 var last_save_time: float = 0.0
@@ -56,6 +59,9 @@ var treasure_timer: float = 0.0
 var treasure_interval: float = 45.0
 
 func _ready() -> void:
+	spirit_stones = BN.new(0)
+	challenge_earnings = BN.new(0)
+	total_earnings_this_run = BN.new(0)
 	_init_hall_states()
 	_init_elder_states()
 	_init_challenge_states()
@@ -108,16 +114,16 @@ func _tick_hall_cycles(dt: float) -> void:
 			continue
 		if not _is_hall_active_in_challenge(hall_id):
 			continue
-		var cycle_time := get_effective_cycle_seconds(hall_id)
+		var cycle_time = get_effective_cycle_seconds(hall_id)
 		if cycle_time <= 0:
 			continue
 		state.cycle_progress += dt / cycle_time
 		while state.cycle_progress >= 1.0:
 			state.cycle_progress -= 1.0
-			var revenue := calculate_hall_revenue(hall_id)
+			var revenue = calculate_hall_revenue(hall_id)
 			_earn_spirit_stones(revenue, hall_id)
 
-func _earn_spirit_stones(amount: BigNumber, source_hall_id: int = -1) -> void:
+func _earn_spirit_stones(amount, source_hall_id: int = -1) -> void:
 	spirit_stones = spirit_stones.add(amount)
 	total_earnings_this_run = total_earnings_this_run.add(amount)
 	if active_challenge_id > 0:
@@ -147,7 +153,7 @@ func _tick_spell(dt: float) -> void:
 			EventBus.dao_spell_ended.emit(selected_dao_path)
 
 func _tick_alchemy_generation(dt: float) -> void:
-	var ae_per_sec := get_ae_per_second()
+	var ae_per_sec = get_ae_per_second()
 	if ae_per_sec > 0:
 		alchemy_essence += ae_per_sec * dt
 
@@ -167,13 +173,13 @@ func _auto_save_check(delta: float) -> void:
 
 # ---------- Revenue Calculation ----------
 
-func calculate_hall_revenue(hall_id: int) -> BigNumber:
-	var config := GameData.get_hall_config(hall_id)
+func calculate_hall_revenue(hall_id: int):
+	var config = GameData.get_hall_config(hall_id)
 	var state: Dictionary = hall_states[hall_id]
 	if config.is_empty() or state.level <= 0:
-		return BigNumber.zero()
+		return BN.zero()
 
-	var revenue: BigNumber = config.base_revenue.mul(state.level)
+	var revenue = config.base_revenue.mul(state.level)
 	revenue = revenue.mul(state.milestone_profit_mult)
 	revenue = revenue.mul(_get_hdp_multiplier())
 	revenue = revenue.mul(_get_dao_path_multiplier(hall_id))
@@ -184,15 +190,13 @@ func calculate_hall_revenue(hall_id: int) -> BigNumber:
 		var spell_mult: float = spell_hall_multipliers.get(hall_id, 1.0)
 		revenue = revenue.mul(spell_mult)
 	if active_challenge_id > 0:
-		var ch := GameData.get_challenge(active_challenge_id)
+		var ch = GameData.get_challenge(active_challenge_id)
 		if ch.restriction == "All income divided by 10":
 			revenue = revenue.div(10)
-		elif ch.restriction == "All cycles x3 slower":
-			pass
 	return revenue
 
 func get_effective_cycle_seconds(hall_id: int) -> float:
-	var config := GameData.get_hall_config(hall_id)
+	var config = GameData.get_hall_config(hall_id)
 	var state: Dictionary = hall_states[hall_id]
 	if config.is_empty():
 		return 1.0
@@ -201,31 +205,31 @@ func get_effective_cycle_seconds(hall_id: int) -> float:
 		cycle /= state.milestone_speed_mult
 	if state.assigned_elder_id > 0:
 		cycle /= 2.0
-	var challenge_speed := _get_challenge_speed_mult()
+	var challenge_speed = _get_challenge_speed_mult()
 	if challenge_speed != 1.0:
 		cycle /= challenge_speed
 	return maxf(cycle, 0.01)
 
-func get_hall_revenue_per_second(hall_id: int) -> BigNumber:
+func get_hall_revenue_per_second(hall_id: int):
 	var state: Dictionary = hall_states.get(hall_id, {})
 	if state.is_empty() or state.level <= 0 or not state.unlocked:
-		return BigNumber.zero()
+		return BN.zero()
 	return calculate_hall_revenue(hall_id).div(get_effective_cycle_seconds(hall_id))
 
-func get_total_revenue_per_second() -> BigNumber:
-	var total := BigNumber.zero()
+func get_total_revenue_per_second():
+	var total = BN.zero()
 	for hall_id in hall_states:
 		total = total.add(get_hall_revenue_per_second(hall_id))
 	return total
 
 func _get_hdp_multiplier() -> float:
-	var unspent := hdp - hdp_spent
+	var unspent = hdp - hdp_spent
 	return 1.0 + unspent * 0.02
 
 func _get_dao_path_multiplier(hall_id: int) -> float:
 	if selected_dao_path < 0:
 		return 1.0
-	var path := GameData.get_dao_path(selected_dao_path)
+	var path = GameData.get_dao_path(selected_dao_path)
 	if path.is_empty():
 		return 1.0
 	if hall_id in path.boosted_hall_ids:
@@ -246,7 +250,7 @@ func _get_challenge_reward_multiplier(hall_id: int) -> float:
 	for ch_id in challenge_completed:
 		if not challenge_completed[ch_id]:
 			continue
-		var config := GameData.get_challenge(ch_id)
+		var config = GameData.get_challenge(ch_id)
 		if config.is_empty():
 			continue
 		match config.reward_type:
@@ -262,7 +266,7 @@ func _get_challenge_reward_multiplier(hall_id: int) -> float:
 func _get_challenge_speed_mult() -> float:
 	if active_challenge_id <= 0:
 		return 1.0
-	var ch := GameData.get_challenge(active_challenge_id)
+	var ch = GameData.get_challenge(active_challenge_id)
 	if ch.is_empty():
 		return 1.0
 	if ch.restriction == "All cycles x3 slower":
@@ -287,7 +291,7 @@ func _get_sect_harmony_multiplier() -> float:
 func _is_hall_active_in_challenge(hall_id: int) -> bool:
 	if active_challenge_id <= 0:
 		return true
-	var ch := GameData.get_challenge(active_challenge_id)
+	var ch = GameData.get_challenge(active_challenge_id)
 	if ch.is_empty():
 		return true
 	match ch.restriction:
@@ -304,14 +308,14 @@ func _is_hall_active_in_challenge(hall_id: int) -> bool:
 func _check_challenge_completion() -> void:
 	if active_challenge_id <= 0:
 		return
-	var ch := GameData.get_challenge(active_challenge_id)
+	var ch = GameData.get_challenge(active_challenge_id)
 	if ch.is_empty():
 		return
 	if challenge_earnings.gte(ch.target_earnings):
 		challenge_completed[active_challenge_id] = true
 		EventBus.challenge_completed.emit(active_challenge_id)
 		active_challenge_id = -1
-		challenge_earnings = BigNumber.zero()
+		challenge_earnings = BN.zero()
 
 # ---------- AE Generation ----------
 
@@ -324,11 +328,11 @@ func get_ae_per_second() -> float:
 # ---------- Hall Actions ----------
 
 func buy_hall(hall_id: int, amount: int = 1) -> bool:
-	var config := GameData.get_hall_config(hall_id)
+	var config = GameData.get_hall_config(hall_id)
 	var state: Dictionary = hall_states.get(hall_id, {})
 	if config.is_empty() or not state.unlocked:
 		return false
-	var cost := BigNumber.bulk_cost(config.base_cost, config.coefficient, state.level, amount)
+	var cost = BN.bulk_cost(config.base_cost, config.coefficient, state.level, amount)
 	if spirit_stones.lt(cost):
 		return false
 	spirit_stones = spirit_stones.sub(cost)
@@ -339,28 +343,28 @@ func buy_hall(hall_id: int, amount: int = 1) -> bool:
 	EventBus.spirit_stones_changed.emit(spirit_stones)
 	return true
 
-func get_hall_cost(hall_id: int, amount: int = 1) -> BigNumber:
-	var config := GameData.get_hall_config(hall_id)
+func get_hall_cost(hall_id: int, amount: int = 1):
+	var config = GameData.get_hall_config(hall_id)
 	var state: Dictionary = hall_states.get(hall_id, {})
 	if config.is_empty():
-		return BigNumber.zero()
-	return BigNumber.bulk_cost(config.base_cost, config.coefficient, state.level, amount)
+		return BN.zero()
+	return BN.bulk_cost(config.base_cost, config.coefficient, state.level, amount)
 
 func get_max_affordable_halls(hall_id: int) -> int:
-	var config := GameData.get_hall_config(hall_id)
+	var config = GameData.get_hall_config(hall_id)
 	var state: Dictionary = hall_states.get(hall_id, {})
 	if config.is_empty():
 		return 0
-	return BigNumber.max_affordable(config.base_cost, config.coefficient, state.level, spirit_stones)
+	return BN.max_affordable(config.base_cost, config.coefficient, state.level, spirit_stones)
 
 func _try_unlock_next_hall(current_hall_id: int) -> void:
-	var next_id := current_hall_id + 1
+	var next_id = current_hall_id + 1
 	if next_id > 12:
 		return
 	var next_state: Dictionary = hall_states.get(next_id, {})
 	if next_state.is_empty() or next_state.unlocked:
 		return
-	var next_config := GameData.get_hall_config(next_id)
+	var next_config = GameData.get_hall_config(next_id)
 	if next_config.is_empty():
 		return
 	if spirit_stones.gte(next_config.base_cost) or hall_states[current_hall_id].level >= 10:
@@ -369,7 +373,7 @@ func _try_unlock_next_hall(current_hall_id: int) -> void:
 
 func _recompute_milestones(hall_id: int) -> void:
 	var state: Dictionary = hall_states[hall_id]
-	var milestones := GameData.get_milestones_for_hall(hall_id)
+	var milestones = GameData.get_milestones_for_hall(hall_id)
 	var speed_mult := 1.0
 	var profit_mult := 1.0
 	for m in milestones:
@@ -387,7 +391,7 @@ func _recompute_milestones(hall_id: int) -> void:
 # ---------- Elder Actions ----------
 
 func hire_elder(elder_id: int) -> bool:
-	var config := GameData.get_elder_config(elder_id)
+	var config = GameData.get_elder_config(elder_id)
 	if config.is_empty():
 		return false
 	if elder_hired.get(elder_id, false):
@@ -406,16 +410,16 @@ func hire_elder(elder_id: int) -> bool:
 func _is_elder_allowed_in_challenge() -> bool:
 	if active_challenge_id <= 0:
 		return true
-	var ch := GameData.get_challenge(active_challenge_id)
+	var ch = GameData.get_challenge(active_challenge_id)
 	return ch.restriction != "No Elders allowed"
 
 # ---------- Meditate (Active Tap) ----------
 
 func do_meditate() -> void:
-	var base := BigNumber.new(1)
-	var rps := get_total_revenue_per_second()
+	var base = BN.new(1)
+	var rps = get_total_revenue_per_second()
 	if rps.gt(0):
-		base = rps.mul(0.1).max_bn(BigNumber.one())
+		base = rps.mul(0.1).max_bn(BN.one())
 	_earn_spirit_stones(base)
 	EventBus.meditate_tapped.emit()
 
@@ -430,7 +434,7 @@ func activate_dao_spell() -> bool:
 		return false
 	if spell_active or spell_cooldown_timer > 0:
 		return false
-	var path := GameData.get_dao_path(selected_dao_path)
+	var path = GameData.get_dao_path(selected_dao_path)
 	if path.is_empty():
 		return false
 	spell_active = true
@@ -449,16 +453,16 @@ func _apply_spell_effect(path: Dictionary) -> void:
 		2:
 			pass
 		3:
-			var best_hall := 1
-			var best_rev := BigNumber.zero()
+			var best_hall = 1
+			var best_rev = BN.zero()
 			for hall_id in hall_states:
-				var rev := get_hall_revenue_per_second(hall_id)
+				var rev = get_hall_revenue_per_second(hall_id)
 				if rev.gt(best_rev):
 					best_rev = rev
 					best_hall = hall_id
 			spell_hall_multipliers[best_hall] = 4.0
 		4:
-			var success := randf() < 0.5
+			var success = randf() < 0.5
 			if success:
 				for hall_id in hall_states:
 					spell_hall_multipliers[hall_id] = 10.0
@@ -472,10 +476,10 @@ func _apply_spell_effect(path: Dictionary) -> void:
 
 func craft_alchemy(item_id: int) -> bool:
 	if active_challenge_id > 0:
-		var ch := GameData.get_challenge(active_challenge_id)
+		var ch = GameData.get_challenge(active_challenge_id)
 		if ch.restriction == "No crafting allowed":
 			return false
-	var config := GameData.get_alchemy_item(item_id)
+	var config = GameData.get_alchemy_item(item_id)
 	if config.is_empty():
 		return false
 	if alchemy_essence < config.ae_cost:
@@ -501,21 +505,21 @@ func start_challenge(challenge_id: int) -> bool:
 	if challenge_completed.get(challenge_id, false):
 		return false
 	active_challenge_id = challenge_id
-	challenge_earnings = BigNumber.zero()
+	challenge_earnings = BN.zero()
 	EventBus.challenge_started.emit(challenge_id)
 	return true
 
 func abandon_challenge() -> void:
 	if active_challenge_id > 0:
 		active_challenge_id = -1
-		challenge_earnings = BigNumber.zero()
+		challenge_earnings = BN.zero()
 
 # ---------- Prestige / Ascension ----------
 
 const HDP_DIVISOR := 44.44e9
 
 func get_hdp_on_ascension() -> int:
-	var earnings_f := total_earnings_this_run.to_float()
+	var earnings_f = total_earnings_this_run.to_float()
 	if earnings_f < HDP_DIVISOR:
 		return 0
 	return int(floor(sqrt(earnings_f / HDP_DIVISOR)))
@@ -524,7 +528,7 @@ func can_ascend() -> bool:
 	return get_hdp_on_ascension() > 0
 
 func perform_ascension() -> void:
-	var gained := get_hdp_on_ascension()
+	var gained = get_hdp_on_ascension()
 	if gained <= 0:
 		return
 	hdp += gained
@@ -534,8 +538,8 @@ func perform_ascension() -> void:
 	EventBus.ascension_completed.emit(gained)
 
 func _reset_for_ascension() -> void:
-	spirit_stones = BigNumber.zero()
-	total_earnings_this_run = BigNumber.zero()
+	spirit_stones = BN.zero()
+	total_earnings_this_run = BN.zero()
 	alchemy_essence = 0.0
 	active_buffs.clear()
 	selected_dao_path = -1
@@ -544,15 +548,15 @@ func _reset_for_ascension() -> void:
 	spell_cooldown_timer = 0.0
 	spell_hall_multipliers.clear()
 	active_challenge_id = -1
-	challenge_earnings = BigNumber.zero()
+	challenge_earnings = BN.zero()
 	_init_hall_states()
 	_init_elder_states()
 
 # ---------- Offline Earnings ----------
 
-func calculate_offline_earnings(seconds: float) -> BigNumber:
-	var max_seconds := minf(seconds, 72.0 * 3600.0)
-	var rps := get_total_revenue_per_second()
+func calculate_offline_earnings(seconds: float):
+	var max_seconds = minf(seconds, 72.0 * 3600.0)
+	var rps = get_total_revenue_per_second()
 	var efficiency := 0.5
 	return rps.mul(max_seconds * efficiency)
 
@@ -606,7 +610,7 @@ func get_save_data() -> Dictionary:
 	}
 
 func load_save_data(data: Dictionary) -> void:
-	spirit_stones = BigNumber.from_dict(data.get("spirit_stones", {"m":0,"e":0}))
+	spirit_stones = BN.from_dict(data.get("spirit_stones", {"m":0,"e":0}))
 	hdp = data.get("hdp", 0)
 	hdp_spent = data.get("hdp_spent", 0)
 	dao_crystals = data.get("dao_crystals", 0)
@@ -614,14 +618,14 @@ func load_save_data(data: Dictionary) -> void:
 	alchemy_essence = data.get("alchemy_essence", 0.0)
 	selected_dao_path = data.get("selected_dao_path", -1)
 	active_challenge_id = data.get("active_challenge_id", -1)
-	challenge_earnings = BigNumber.from_dict(data.get("challenge_earnings", {"m":0,"e":0}))
-	total_earnings_this_run = BigNumber.from_dict(data.get("total_earnings", {"m":0,"e":0}))
+	challenge_earnings = BN.from_dict(data.get("challenge_earnings", {"m":0,"e":0}))
+	total_earnings_this_run = BN.from_dict(data.get("total_earnings", {"m":0,"e":0}))
 	ascension_count = data.get("ascension_count", 0)
 	total_play_time = data.get("total_play_time", 0.0)
 
 	var hall_save: Dictionary = data.get("halls", {})
 	for key in hall_save:
-		var hall_id := int(key)
+		var hall_id = int(key)
 		var s: Dictionary = hall_save[key]
 		hall_states[hall_id] = {
 			"level": s.get("level", 0),
@@ -654,10 +658,10 @@ func load_save_data(data: Dictionary) -> void:
 
 	var saved_time: float = data.get("timestamp", 0.0)
 	if saved_time > 0:
-		var now := Time.get_unix_time_from_system()
-		var offline_seconds := now - saved_time
+		var now = Time.get_unix_time_from_system()
+		var offline_seconds = now - saved_time
 		if offline_seconds > 5:
-			var earnings := calculate_offline_earnings(offline_seconds)
+			var earnings = calculate_offline_earnings(offline_seconds)
 			if earnings.gt(0):
 				_earn_spirit_stones(earnings)
 				EventBus.offline_earnings_calculated.emit(earnings, offline_seconds)

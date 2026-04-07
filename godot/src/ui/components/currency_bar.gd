@@ -45,5 +45,5 @@ func _process(_delta: float) -> void:
 	hdp_label.text = "HDP: %d" % GameManager.hdp
 	ae_label.text = "AE: %.0f" % GameManager.alchemy_essence
 
-func _on_ss_changed(_amount: BigNumber) -> void:
+func _on_ss_changed(_amount) -> void:
 	pass

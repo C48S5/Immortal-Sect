@@ -2,6 +2,8 @@ extends Node
 
 ## Static game data - all hall, elder, milestone, dao path, alchemy, and challenge configs.
 
+const BN = preload("res://src/core/big_number.gd")
+
 var hall_configs: Array[Dictionary] = []
 var elder_configs: Array[Dictionary] = []
 var milestone_configs: Dictionary = {}
@@ -51,10 +53,10 @@ func _hall(id: int, name: String, base_cost: float, coeff: float,
 		cycle_s: float, base_rev: float, element: String, desc: String) -> Dictionary:
 	return {
 		"id": id, "name": name,
-		"base_cost": BigNumber.new(base_cost),
+		"base_cost": BN.new(base_cost),
 		"coefficient": coeff,
 		"cycle_seconds": cycle_s,
-		"base_revenue": BigNumber.new(base_rev),
+		"base_revenue": BN.new(base_rev),
 		"element": element,
 		"description": desc
 	}
@@ -76,7 +78,7 @@ func _init_elder_configs() -> void:
 	]
 
 func _elder(id: int, n: String, title: String, hall_id: int, cost: float) -> Dictionary:
-	return {"id": id, "name": n, "title": title, "hall_id": hall_id, "cost": BigNumber.new(cost)}
+	return {"id": id, "name": n, "title": title, "hall_id": hall_id, "cost": BN.new(cost)}
 
 func _init_milestone_configs() -> void:
 	milestone_configs[1] = _parse_milestones([
@@ -215,7 +217,7 @@ func _challenge(id: int, n: String, restriction: String, target: float,
 		reward_desc: String, reward_type: String, reward_val: float, target_hall: int) -> Dictionary:
 	return {
 		"id": id, "name": n, "restriction": restriction,
-		"target_earnings": BigNumber.new(target), "reward_description": reward_desc,
+		"target_earnings": BN.new(target), "reward_description": reward_desc,
 		"reward_type": reward_type, "reward_value": reward_val,
 		"target_hall_id": target_hall
 	}
