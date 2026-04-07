@@ -12,12 +12,13 @@ const ELEMENT_COLORS := {
 	"earth": Color(0.6, 0.5, 0.2),
 	"wood": Color(0.2, 0.7, 0.3),
 	"metal": Color(0.7, 0.7, 0.75),
-	"void": Color(0.6, 0.3, 0.8),
+	"neutral": Color(0.85, 0.7, 0.3),
 }
-const HALL_ELEMENTS := [
-	"wood", "earth", "fire", "metal", "water",
-	"wood", "earth", "fire", "metal", "water", "void", "void"
-]
+const HALL_ELEMENTS := {
+	1: "neutral", 2: "earth", 3: "fire", 4: "earth", 5: "wood",
+	6: "metal", 7: "metal", 8: "fire", 9: "water", 10: "water",
+	11: "wood", 12: "neutral",
+}
 
 var hall_id: int = -1
 var hall_name: String = ""
@@ -66,7 +67,7 @@ func _build_ui() -> void:
 
 	lbl_element = Label.new()
 	lbl_element.text = "◆"
-	var elem := HALL_ELEMENTS[hall_id] if hall_id < HALL_ELEMENTS.size() else "void"
+	var elem: String = HALL_ELEMENTS.get(hall_id, "neutral")
 	lbl_element.add_theme_color_override("font_color", ELEMENT_COLORS.get(elem, ACCENT_GOLD))
 	lbl_element.add_theme_font_size_override("font_size", 16)
 	top_row.add_child(lbl_element)
@@ -136,7 +137,7 @@ func _apply_card_style() -> void:
 	sb.corner_radius_bottom_left = 6
 	sb.corner_radius_bottom_right = 6
 	sb.border_width_left = 2
-	var elem := HALL_ELEMENTS[hall_id] if hall_id < HALL_ELEMENTS.size() else "void"
+	var elem: String = HALL_ELEMENTS.get(hall_id, "neutral")
 	sb.border_color = ELEMENT_COLORS.get(elem, ACCENT_GOLD) * Color(1, 1, 1, 0.4)
 	add_theme_stylebox_override("panel", sb)
 
@@ -182,9 +183,11 @@ func set_buy_mode(mode: int) -> void:
 func _on_buy_pressed() -> void:
 	if not is_unlocked:
 		return
-	if has_node("/root/HallManager") and get_node("/root/HallManager").has_method("buy_hall"):
-		var count := buy_mode if buy_mode > 0 else -1
-		get_node("/root/HallManager").buy_hall(hall_id, count)
+	if has_node("/root/HallManager"):
+		var hm: Node = get_node("/root/HallManager")
+		hm.set_buy_mode(buy_mode)
+		if hm.has_method("buy_with_mode"):
+			hm.buy_with_mode(hall_id)
 
 
 func update() -> void:

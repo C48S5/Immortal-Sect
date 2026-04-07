@@ -142,6 +142,7 @@ func _build_content_area(parent: HBoxContainer) -> void:
 
 	content_container = Control.new()
 	content_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content_area.add_child(content_container)
 
 

@@ -90,23 +90,19 @@ func update() -> void:
 	if not has_node("/root/GameManager"):
 		_update_placeholder()
 		return
-	var gm := get_node("/root/GameManager")
-	if gm.has_method("get_spirit_stones"):
-		lbl_ss.text = _format(gm.get_spirit_stones())
-	if gm.has_method("get_ss_per_second"):
-		lbl_ss_rate.text = "(+" + _format(gm.get_ss_per_second()) + "/s)"
-	if gm.has_method("get_hdp"):
-		lbl_hdp.text = _format(gm.get_hdp())
-	if gm.has_method("get_alchemy_essence"):
-		lbl_ae.text = _format(gm.get_alchemy_essence())
-	if gm.has_method("get_realm_tokens"):
-		lbl_rt.text = _format(gm.get_realm_tokens())
-	if gm.has_method("get_hero_souls"):
-		lbl_hs.text = _format(gm.get_hero_souls())
-	if gm.has_method("get_dungeon_coins"):
-		lbl_dc.text = _format(gm.get_dungeon_coins())
-	if gm.has_method("get_qi_remnants"):
-		lbl_qr.text = _format(gm.get_qi_remnants())
+	var gm: Node = get_node("/root/GameManager")
+	lbl_ss.text = _format(gm.spirit_stones)
+	lbl_hdp.text = str(gm.hdp)
+	lbl_ae.text = _format(gm.alchemy_essence)
+	lbl_rt.text = str(gm.recruitment_tokens)
+	lbl_hs.text = str(gm.heavenly_seals)
+	lbl_dc.text = str(gm.dao_crystals)
+	lbl_qr.text = str(gm.qi_residue)
+
+	if has_node("/root/HallManager"):
+		var hm: Node = get_node("/root/HallManager")
+		if hm.has_method("get_total_revenue_per_second"):
+			lbl_ss_rate.text = "(+" + _format(hm.get_total_revenue_per_second()) + "/s)"
 
 
 func _update_placeholder() -> void:

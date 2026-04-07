@@ -289,6 +289,49 @@ func unlock_next_hall() -> void:
 			return
 
 
+# --- Query helpers (used by UI) ---
+
+func is_hall_unlocked(hall_id: int) -> bool:
+	var hall: Dictionary = halls.get(hall_id, {})
+	return not hall.is_empty() and hall.is_unlocked
+
+
+func get_hall_level(hall_id: int) -> int:
+	var hall: Dictionary = halls.get(hall_id, {})
+	if hall.is_empty():
+		return 0
+	return hall.level
+
+
+func get_hall_cycle_progress(hall_id: int) -> float:
+	var hall: Dictionary = halls.get(hall_id, {})
+	if hall.is_empty():
+		return 0.0
+	return hall.cycle_progress
+
+
+func get_hall_revenue(hall_id: int) -> float:
+	return get_revenue(hall_id)
+
+
+func get_hall_cost(hall_id: int, count: int) -> float:
+	var hall: Dictionary = halls.get(hall_id, {})
+	if hall.is_empty():
+		return 0.0
+	var cfg: Dictionary = _get_config(hall_id)
+	if cfg.is_empty():
+		return 0.0
+	return _bulk_cost(cfg.base_cost, cfg.coefficient, hall.level, count)
+
+
+func set_automated(hall_id: int, automated: bool) -> void:
+	var hall: Dictionary = halls.get(hall_id, {})
+	if hall.is_empty():
+		return
+	hall.is_automated = automated
+	hall_updated.emit(hall_id)
+
+
 # --- Ascension reset ---
 
 func reset_for_ascension() -> void:

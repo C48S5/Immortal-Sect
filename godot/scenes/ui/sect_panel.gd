@@ -160,24 +160,17 @@ func _build_hall_list(parent: VBoxContainer) -> void:
 
 
 func _populate_halls() -> void:
-	var hall_names := [
-		"Qi Gathering Pagoda", "Spirit Stone Mine", "Alchemy Pavilion",
-		"Sword Training Hall", "Scripture Library", "Formation Tower",
-		"Beast Taming Grounds", "Artifact Forge", "Celestial Observatory",
-		"Tribulation Platform", "Void Sanctum", "Immortal Treasury"
-	]
-
-	for i in range(hall_names.size()):
+	for cfg in HallManager.HALL_CONFIGS:
 		var card := PanelContainer.new()
 		card.set_script(HALL_CARD_SCRIPT)
 		hall_container.add_child(card)
 		if card.has_method("setup"):
-			card.setup(i, hall_names[i], buy_mode)
+			card.setup(cfg.id, cfg.name, buy_mode)
 		hall_cards.append(card)
 
 
 func _on_meditate_pressed() -> void:
-	if has_node("/root/GameManager") and get_node("/root/GameManager").has_method("meditate"):
+	if has_node("/root/GameManager"):
 		get_node("/root/GameManager").meditate()
 	_pulse_meditate()
 
