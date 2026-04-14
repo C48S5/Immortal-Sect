@@ -20,7 +20,8 @@ class TestCultivationRealms:
 
     def test_realm_count(self, src_path):
         game_types = (src_path / "types" / "game.ts").read_text()
-        realm_matches = re.findall(r"(\w+)\s*=\s*'([^']+)'", game_types.split("CultivationRealm")[1].split("}")[0])
+        enum_block = game_types.split("export enum CultivationRealm", 1)[1].split("}", 1)[0]
+        realm_matches = re.findall(r"^\s*\w+\s*=\s*'([^']+)'", enum_block, re.MULTILINE)
         assert len(realm_matches) == len(self.EXPECTED_REALMS)
 
     def test_realm_names_exist(self, src_path):

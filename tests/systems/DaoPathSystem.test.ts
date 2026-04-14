@@ -67,11 +67,11 @@ describe('DaoPathSystem', () => {
   });
 
   describe('Spell configurations', () => {
-    it('Sword Storm should have 30s duration and 300s cooldown', () => {
+    it('Sword Storm should have 45s duration and 180s cooldown', () => {
       const swordDao = DAO_PATH_CONFIGS.find(p => p.name === 'Sword Dao');
       expect(swordDao!.spell.name).toBe('Sword Storm');
-      expect(swordDao!.spell.activeDuration).toBe(30);
-      expect(swordDao!.spell.cooldown).toBe(300);
+      expect(swordDao!.spell.activeDuration).toBe(45);
+      expect(swordDao!.spell.cooldown).toBe(180);
     });
 
     it('Golden Core Overflow should have 60s duration and 240s cooldown', () => {
@@ -81,11 +81,11 @@ describe('DaoPathSystem', () => {
       expect(alchemyDao!.spell.cooldown).toBe(240);
     });
 
-    it('Heavenly Tribulation should have 10s duration and 180s cooldown', () => {
+    it('Heavenly Tribulation should have 10s duration and 300s cooldown', () => {
       const bodyDao = DAO_PATH_CONFIGS.find(p => p.name === 'Body Dao');
       expect(bodyDao!.spell.name).toBe('Heavenly Tribulation');
       expect(bodyDao!.spell.activeDuration).toBe(10);
-      expect(bodyDao!.spell.cooldown).toBe(180);
+      expect(bodyDao!.spell.cooldown).toBe(300);
     });
   });
 

@@ -2,11 +2,41 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '@state/gameStore';
 import { usePrestigeStore } from '@state/prestigeStore';
 import { useMissionStore } from '@state/missionStore';
+import { useHallStore } from '@state/hallStore';
 import { formatNumber } from '@core/BigNumber';
 import { HALL_CONFIGS } from '@data/hallConfigs';
+import Decimal from 'break_infinity.js';
 
 interface AscensionScreenProps {
   onClose: () => void;
+}
+
+interface AscensionAdvisor {
+  etaMinutes: number;
+  projectedHdp: number;
+  gainVsNow: number;
+}
+
+function calculateAscensionAdvisor(
+  currentRevenue: Decimal,
+  ssPerSecond: Decimal,
+): AscensionAdvisor[] {
+  const divisor = new Decimal('44440000000');
+  const checkpoints = [5, 15, 30];
+  return checkpoints.map((etaMinutes) => {
+    const projectedRevenue = currentRevenue.add(ssPerSecond.mul(etaMinutes * 60));
+    const projectedHdp = projectedRevenue.div(divisor).lt(1)
+      ? 0
+      : Math.floor(Math.sqrt(projectedRevenue.div(divisor).toNumber()));
+    const currentHdp = currentRevenue.div(divisor).lt(1)
+      ? 0
+      : Math.floor(Math.sqrt(currentRevenue.div(divisor).toNumber()));
+    return {
+      etaMinutes,
+      projectedHdp,
+      gainVsNow: Math.max(0, projectedHdp - currentHdp),
+    };
+  });
 }
 
 const RESETS = [
@@ -40,6 +70,8 @@ export function AscensionScreen({ onClose }: AscensionScreenProps) {
   const [totalRevenueThisRun, setTotalRevenue] = useState(() => usePrestigeStore.getState().totalRevenueThisRun);
   const [hdpToGain, setHdpToGain] = useState(() => usePrestigeStore.getState().getHDPPreview());
   const ascensionAllowed = hdpToGain > 0;
+  const ssPerSecond = useHallStore.getState().getTotalRevenuePerSecond(hallConfigLookups);
+  const advisorRows = calculateAscensionAdvisor(totalRevenueThisRun, ssPerSecond);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -184,6 +216,30 @@ export function AscensionScreen({ onClose }: AscensionScreenProps) {
           <p className="text-2xl font-bold text-gold">{hdpToGain} Dao Points</p>
           <p className="text-xs text-gold-muted mt-1">
             Formula: floor(sqrt(totalRevenue / 44.44B))
+          </p>
+        </div>
+
+        <div className="mb-4 p-3 rounded-lg bg-[rgba(13,27,42,0.7)] border border-[rgba(45,90,61,0.3)]">
+          <h3 className="text-xs font-bold text-gold-muted uppercase tracking-wider mb-2">
+            Ascension Advisor
+          </h3>
+          <div className="space-y-1">
+            {advisorRows.map((row) => (
+              <div key={row.etaMinutes} className="flex items-center justify-between text-xs">
+                <span className="text-gold-muted">Wait {row.etaMinutes} min</span>
+                <span className="text-warm-white">
+                  ~{row.projectedHdp} HDP
+                  {row.gainVsNow > 0 ? (
+                    <span className="text-success ml-1">(+{row.gainVsNow})</span>
+                  ) : (
+                    <span className="text-gold-muted ml-1">(no gain)</span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-gold-muted mt-2">
+            Projection uses current SS/s and assumes no major unlock spikes.
           </p>
         </div>
 

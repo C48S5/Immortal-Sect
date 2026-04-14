@@ -3,11 +3,13 @@ import { useGameStore } from '@state/gameStore';
 import { useHallStore } from '@state/hallStore';
 import { useElderStore } from '@state/elderStore';
 import { useMissionStore } from '@state/missionStore';
+import { usePrestigeStore } from '@state/prestigeStore';
 import { D, bulkCost, formatNumber } from '@core/BigNumber';
 import { HallCard } from './HallCard';
 import type { HallState } from '@models/hall';
 import type { ElderState } from '@models/elder';
 import { HALL_CONFIGS } from '@data/hallConfigs';
+import { ELDER_CONFIGS } from '@data/elderConfigs';
 import type { HallConfigLookup, BuyMode } from '@state/hallStore';
 
 /** Sect Harmony thresholds matching sectHarmonyConfigs.ts */
@@ -40,6 +42,8 @@ const HALL_CONFIG_LOOKUPS: HallConfigLookup[] = HALL_CONFIGS.map((c) => ({
 export function SectMountain() {
   const spiritStones = useGameStore((s) => s.spiritStones);
   const addSpiritStones = useGameStore((s) => s.addSpiritStones);
+  const ascensionCount = useGameStore((s) => s.ascensionCount);
+  const hdpPreview = usePrestigeStore((s) => s.getHDPPreview());
 
   // Zustand store subscriptions — single source of truth
   const halls = useHallStore((s) => s.halls);
@@ -152,8 +156,71 @@ export function SectMountain() {
     };
   }, [hallStates]);
 
+  // Lightweight onboarding questline (first-session guidance)
+  const questline = useMemo(() => {
+    const hall1Level = halls[1]?.level ?? 0;
+    const hall2Unlocked = halls[2]?.isUnlocked ?? false;
+    const firstElderHired = !!elders[1]?.hired;
+
+    const steps = [
+      {
+        id: 'meditate',
+        label: 'Meditate once to begin cultivation',
+        done: spiritStones.gt(0),
+      },
+      {
+        id: 'buy-hall-1',
+        label: 'Buy your first level in Qi Gathering Pavilion',
+        done: hall1Level >= 1,
+      },
+      {
+        id: 'unlock-hall-2',
+        label: 'Unlock Body Tempering Dojo (Hall 2)',
+        done: hall2Unlocked,
+      },
+      {
+        id: 'hire-elder-1',
+        label: `Hire ${ELDER_CONFIGS[0]?.name ?? 'your first Elder'} to automate Hall 1`,
+        done: firstElderHired,
+      },
+      {
+        id: 'ascension-preview',
+        label: 'Reach 1+ Heavenly Dao Point preview',
+        done: hdpPreview > 0 || ascensionCount > 0,
+      },
+    ];
+
+    const nextStep = steps.find((s) => !s.done) ?? null;
+    const completed = steps.filter((s) => s.done).length;
+    return { steps, nextStep, completed };
+  }, [halls, elders, spiritStones, hdpPreview, ascensionCount]);
+
   return (
     <div className="flex flex-col h-full">
+      {/* Onboarding questline */}
+      {ascensionCount === 0 && (
+        <div
+          className="mx-5 mt-4 mb-1 p-3 rounded-lg border border-[rgba(201,168,76,0.35)] bg-[rgba(13,27,42,0.55)]"
+          data-testid="onboarding-questline"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <h3 className="text-[10px] tracking-widest uppercase text-gold-muted" style={{ fontFamily: "'Cinzel', serif" }}>
+              Initiate Path
+            </h3>
+            <span className="text-[10px] text-gold-muted font-mono">
+              {questline.completed}/{questline.steps.length}
+            </span>
+          </div>
+          {questline.nextStep ? (
+            <p className="text-xs text-warm-white" data-testid="onboarding-next-step">
+              Next: {questline.nextStep.label}
+            </p>
+          ) : (
+            <p className="text-xs text-success">Questline complete. Your sect is ready to ascend.</p>
+          )}
+        </div>
+      )}
+
       {/* Meditate formation */}
       <div className="flex flex-col items-center py-8">
         <div className="meditate-formation">
@@ -161,6 +228,7 @@ export function SectMountain() {
           <div className="meditate-inner-ring" />
           <button
             onClick={handleMeditate}
+            data-testid="meditate-btn"
             className={`meditate-btn ${isMeditating ? 'animate-bounce-click' : ''}`}
           >
             <span className="meditate-icon">&#9775;</span>

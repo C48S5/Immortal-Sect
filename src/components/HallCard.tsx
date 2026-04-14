@@ -189,6 +189,7 @@ function HallCardInner({ config, state, elder, spiritStones, buyMode, onBuy }: H
           Cost: <span className="text-warm-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{formatNumber(buyCost)}</span>
         </div>
         <button
+          data-testid={`buy-hall-${config.id}`}
           onClick={handleBuy}
           disabled={!canAfford}
           className={`buy-btn ${canAfford ? 'affordable' : 'disabled'}`}
