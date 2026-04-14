@@ -282,6 +282,14 @@ export default function App() {
   const [offlineReturn, setOfflineReturn] = useState<{
     seconds: number;
     spiritStones: Decimal;
+    efficiency: number;
+    breakdown: {
+      base: number;
+      voidMeditationBonus: number;
+      tribulationBonus: number;
+      bodyDaoBonus: number;
+      totalEfficiency: number;
+    };
   } | null>(null);
 
   // Real store subscriptions for tab visibility
@@ -396,6 +404,8 @@ export default function App() {
             setOfflineReturn({
               seconds: result.secondsAway,
               spiritStones: result.spiritStones,
+              efficiency: result.efficiency,
+              breakdown: result.multiplierBreakdown,
             });
           }
         }
@@ -640,6 +650,8 @@ export default function App() {
         <OfflineReturnScreen
           offlineSeconds={offlineReturn.seconds}
           spiritStonesEarned={offlineReturn.spiritStones}
+          efficiency={offlineReturn.efficiency}
+          breakdown={offlineReturn.breakdown}
           onCollect={handleOfflineCollect}
         />
       )}

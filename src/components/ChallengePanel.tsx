@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 import { formatNumber, D } from '@core/BigNumber';
 import { CHALLENGE_CONFIGS } from '@data/challengeConfigs';
 import { useChallengeStore } from '@state/challengeStore';
+import { useHallStore } from '@state/hallStore';
+import { useElderStore } from '@state/elderStore';
+import { useGameStore } from '@state/gameStore';
 
 export function ChallengePanel() {
   const challenges = useChallengeStore((s) => s.challenges);
@@ -9,6 +12,10 @@ export function ChallengePanel() {
   const enterChallenge = useChallengeStore((s) => s.enterChallenge);
   const exitChallenge = useChallengeStore((s) => s.exitChallenge);
   const getActiveChallenge = useChallengeStore((s) => s.getActiveChallenge);
+  const activeChallengeId = getActiveChallenge();
+  const halls = useHallStore((s) => s.halls);
+  const elders = useElderStore((s) => s.elders);
+  const activeDaoPath = useGameStore((s) => s.activeDaoPath);
 
   useEffect(() => {
     if (Object.keys(challenges).length === 0) {
@@ -24,10 +31,33 @@ export function ChallengePanel() {
     exitChallenge();
   };
 
-  const activeChallengeId = getActiveChallenge();
   const activeChallenge = activeChallengeId !== null
     ? { id: activeChallengeId, ...challenges[activeChallengeId] }
     : null;
+
+  const statusDetails = (() => {
+    if (activeChallengeId === null) return null;
+    const hallIds = Object.keys(halls).map(Number);
+    const enabledHallCount = hallIds.filter((id) => halls[id]?.isUnlocked).length;
+    const hiredElders = Object.values(elders).filter((e) => e.hired).length;
+
+    switch (activeChallengeId) {
+      case 1:
+        return `Enforced: only Hall 1 can generate income. Currently enabled halls: ${enabledHallCount}`;
+      case 2:
+        return `Enforced: elder hiring blocked. Elders currently hired: ${hiredElders}`;
+      case 4:
+        return 'Enforced: alchemy crafting is disabled during this tribulation.';
+      case 7:
+        return 'Enforced: only Halls 1 and 7 can generate income.';
+      case 9:
+        return 'Enforced: no active in-session income gain; progression from offline return only.';
+      case 12:
+        return `Enforced: combined restrictions active. Dao Path selected: ${activeDaoPath ?? 'none'}`;
+      default:
+        return 'Restriction modifiers are actively enforced by the simulation loop.';
+    }
+  })();
 
   return (
     <div className="p-5">
@@ -71,6 +101,11 @@ export function ChallengePanel() {
             <div className="text-xs text-gold-muted mt-1">
               {formatNumber(earnings)} / {formatNumber(config.targetEarnings)} Spirit Stones earned
             </div>
+            {statusDetails && (
+              <div className="text-[11px] text-warm-white mt-2 p-2 rounded bg-[rgba(13,27,42,0.4)] border border-[rgba(45,90,61,0.25)]">
+                {statusDetails}
+              </div>
+            )}
           </div>
         );
       })()}

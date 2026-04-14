@@ -6,6 +6,15 @@ interface OfflineReturnScreenProps {
   offlineSeconds: number;
   spiritStonesEarned: Decimal;
   onCollect: (multiplier: number) => void;
+  ssPerSecondAtDeparture?: Decimal;
+  efficiency?: number;
+  breakdown?: {
+    base: number;
+    voidMeditationBonus: number;
+    tribulationBonus: number;
+    bodyDaoBonus: number;
+    totalEfficiency: number;
+  };
 }
 
 function formatDuration(seconds: number): string {
@@ -15,7 +24,14 @@ function formatDuration(seconds: number): string {
   return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
 }
 
-export function OfflineReturnScreen({ offlineSeconds, spiritStonesEarned, onCollect }: OfflineReturnScreenProps) {
+export function OfflineReturnScreen({
+  offlineSeconds,
+  spiritStonesEarned,
+  onCollect,
+  ssPerSecondAtDeparture,
+  efficiency,
+  breakdown,
+}: OfflineReturnScreenProps) {
   const [displayAmount, setDisplayAmount] = useState(D(0));
   const [animating, setAnimating] = useState(true);
   const animRef = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -103,6 +119,55 @@ export function OfflineReturnScreen({ offlineSeconds, spiritStonesEarned, onColl
           <p className={`text-3xl font-bold font-mono text-jade ${animating ? 'animate-count-up' : ''}`}>
             {formatNumber(displayAmount)} SS
           </p>
+        </div>
+
+        <div className="mb-6 text-left p-3 rounded-lg bg-[rgba(13,27,42,0.55)] border border-[rgba(45,90,61,0.25)]">
+          <p className="text-[10px] uppercase tracking-wider text-gold-muted mb-1">Offline Breakdown</p>
+          <div className="text-xs text-gold-muted space-y-1">
+            <div className="flex justify-between">
+              <span>Time away</span>
+              <span className="text-warm-white">{formatDuration(offlineSeconds)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Base offline rate</span>
+              <span className="text-warm-white">50%</span>
+            </div>
+            {typeof efficiency === 'number' && (
+              <div className="flex justify-between">
+                <span>Effective multiplier</span>
+                <span className="text-warm-white">x{efficiency.toFixed(2)}</span>
+              </div>
+            )}
+            {breakdown && (
+              <>
+                <div className="flex justify-between">
+                  <span>Void tier bonus</span>
+                  <span className="text-warm-white">+{breakdown.voidMeditationBonus} tier</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tribulation bonus</span>
+                  <span className="text-warm-white">x{breakdown.tribulationBonus}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Body Dao bonus</span>
+                  <span className="text-warm-white">+{Math.round(breakdown.bodyDaoBonus * 100)}%</span>
+                </div>
+              </>
+            )}
+            {ssPerSecondAtDeparture && (
+              <div className="flex justify-between">
+                <span>SS/s at departure</span>
+                <span className="text-warm-white">{formatNumber(ssPerSecondAtDeparture)}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span>Estimated total</span>
+              <span className="text-jade">{formatNumber(spiritStonesEarned)} SS</span>
+            </div>
+            <p className="text-[10px] text-gold-muted/70 mt-1">
+              Tip: Raise Hall 9 (Void Meditation Sanctum) and complete Tribulation 9 for stronger offline gains.
+            </p>
+          </div>
         </div>
 
         <div className="flex gap-3 justify-center">

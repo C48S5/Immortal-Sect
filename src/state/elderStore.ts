@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import Decimal from 'break_infinity.js';
 import { useGameStore } from './gameStore';
 import { useHallStore } from './hallStore';
+import { useChallengeStore } from './challengeStore';
 
 // TODO: Import ElderConfig from src/data/ once available
 export interface ElderConfigLookup {
@@ -21,7 +22,9 @@ export interface ElderStoreState {
   initElder: (id: number) => void;
   hireElder: (id: number, config: ElderConfigLookup) => boolean;
   canAffordElder: (id: number, config: ElderConfigLookup) => boolean;
+  canHireUnderRestrictions: (id: number, config: ElderConfigLookup) => boolean;
   isHired: (id: number) => boolean;
+  canHireElder: (id: number) => boolean;
   resetForAscension: () => void;
 }
 
@@ -71,9 +74,22 @@ export const useElderStore = create<ElderStoreState>()((set, get) => ({
     return spiritStones.gte(config.cost);
   },
 
+  canHireUnderRestrictions: (id: number, config: ElderConfigLookup) => {
+    const allEldersDisabled = useChallengeStore.getState().isRestrictionActive(
+      'No Elders allowed',
+    );
+    if (allEldersDisabled) return false;
+    return get().canAffordElder(id, config);
+  },
+
   isHired: (id: number) => {
     const elder = get().elders[id];
     return elder?.hired ?? false;
+  },
+
+  canHireElder: (id: number) => {
+    const elder = get().elders[id];
+    return !!elder && !elder.hired;
   },
 
   resetForAscension: () => {

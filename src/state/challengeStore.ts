@@ -18,6 +18,7 @@ export interface ChallengeStoreState {
   exitChallenge: () => void;
   addChallengeEarnings: (amount: Decimal) => void;
   getActiveChallenge: () => number | null;
+  isRestrictionActive: (restriction: string) => boolean;
   resetForAscension: () => void;
 }
 
@@ -123,6 +124,14 @@ export const useChallengeStore = create<ChallengeStoreState>()(
         if (slot.active) return Number(idStr);
       }
       return null;
+    },
+
+    isRestrictionActive: (restriction: string) => {
+      const activeId = get().getActiveChallenge();
+      if (activeId === null) return false;
+      const config = CHALLENGE_CONFIGS.find((c) => c.id === activeId);
+      if (!config) return false;
+      return config.restriction.toLowerCase().includes(restriction.toLowerCase());
     },
 
     resetForAscension: () => {

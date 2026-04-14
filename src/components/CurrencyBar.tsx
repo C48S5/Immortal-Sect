@@ -33,6 +33,17 @@ export function CurrencyBar() {
   // Subscribe to halls to re-render when levels change
   useHallStore((s) => s.halls);
   const totalPerSec = useHallStore.getState().getTotalRevenuePerSecond(HALL_LOOKUPS);
+  const topIncomeHalls = HALL_LOOKUPS
+    .map((cfg) => {
+      const hall = useHallStore.getState().halls[cfg.id];
+      if (!hall || !hall.isUnlocked || hall.level <= 0) return null;
+      const perCycle = useHallStore.getState().getRevenue(cfg.id, cfg);
+      const perSecond = perCycle.div(cfg.cycleSeconds / hall.speedMultiplier.toNumber());
+      return { hallId: cfg.id, perSecond };
+    })
+    .filter((entry): entry is { hallId: number; perSecond: ReturnType<typeof D> } => entry !== null)
+    .sort((a, b) => b.perSecond.cmp(a.perSecond))
+    .slice(0, 3);
 
   const values: Record<string, unknown> = {
     spiritStones, hdp, daoCrystals, alchemyEssence,
@@ -68,6 +79,13 @@ export function CurrencyBar() {
           </div>
         );
       })}
+
+      {/* Economy transparency: top contributors */}
+      {topIncomeHalls.length > 0 && (
+        <div className="ml-auto text-[10px] text-gold-muted font-mono">
+          Top income: {topIncomeHalls.map((r) => `H${r.hallId}:${formatNumber(r.perSecond)}/s`).join(' | ')}
+        </div>
+      )}
     </div>
   );
 }
