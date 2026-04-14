@@ -161,6 +161,7 @@ export function SectMountain() {
           <div className="meditate-inner-ring" />
           <button
             onClick={handleMeditate}
+            data-testid="meditate-btn"
             className={`meditate-btn ${isMeditating ? 'animate-bounce-click' : ''}`}
           >
             <span className="meditate-icon">&#9775;</span>

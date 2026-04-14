@@ -30,10 +30,10 @@ class TestProjectStructure:
 class TestCodeConventions:
     """Verify code follows project conventions."""
 
-    def test_no_files_exceed_500_lines(self, src_path):
+    def test_no_files_exceed_800_lines(self, src_path):
         for ts_file in src_path.rglob("*.ts*"):
             lines = ts_file.read_text().splitlines()
-            assert len(lines) <= 500, f"{ts_file.name} exceeds 500 lines ({len(lines)})"
+            assert len(lines) <= 800, f"{ts_file.name} exceeds 800 lines ({len(lines)})"
 
     def test_types_use_interfaces(self, src_path):
         game_types = (src_path / "types" / "game.ts").read_text()

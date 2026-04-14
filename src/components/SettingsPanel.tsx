@@ -184,7 +184,6 @@ export function SettingsPanel() {
             />
           </div>
           <span className="text-sm text-warm-white">Sound Effects</span>
-          <span className="text-xs text-gold-muted">(coming soon)</span>
         </label>
       </div>
 
